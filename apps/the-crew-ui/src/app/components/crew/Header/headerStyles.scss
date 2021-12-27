@@ -1,5 +1,10 @@
 .headerTitle {
   flex: 1;
+  img {
+    height: 60px;
+    width: auto;
+    cursor: pointer;
+  }
 }
 
 .registerAsProfessionalBtn {

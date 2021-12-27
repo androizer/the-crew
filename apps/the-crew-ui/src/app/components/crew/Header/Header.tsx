@@ -1,12 +1,13 @@
 import './headerStyles.scss';
 
+import { Handyman } from '@mui/icons-material';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
+import HandymanIcon from '@mui/icons-material/Handyman';
 import LogoutIcon from '@mui/icons-material/Logout';
 import MenuIcon from '@mui/icons-material/Menu';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import SettingsIcon from '@mui/icons-material/Settings';
 import UpcomingIcon from '@mui/icons-material/Upcoming';
-import HandymanIcon from '@mui/icons-material/Handyman';
 import {
   AppBar,
   Avatar,
@@ -25,17 +26,16 @@ import {
   useMediaQuery,
   useTheme,
 } from '@mui/material';
-import Typography from '@mui/material/Typography';
 import { Box } from '@mui/system';
+import { Role } from '@the-crew/common/enums';
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 
+import { theCrewLogo } from '../../../../assets/icons';
 import { useAppDispatch, useAppSelector } from '../../../store';
-import { authSelector, cartActions, cartSelectors } from '../../../store/slices';
+import { authSelector } from '../../../store/slices';
 import { AuthThunks } from '../../../store/thunks';
-import { Handyman } from '@mui/icons-material';
-import { Role } from '@the-crew/common/enums';
 
 export default function Header() {
   const [openSideMenu, setSideMenuStatus] = useState(false);
@@ -69,15 +69,13 @@ export default function Header() {
             </IconButton>
           )}
           <div className="headerTitle">
-            <Typography
-              variant="h5"
-              style={{ cursor: 'pointer', display: 'inline-block' }}
+            <img
+              src={theCrewLogo}
+              alt="the-crew-logo"
               onClick={() => {
                 handleLogoClick();
               }}
-            >
-              The Crew
-            </Typography>
+            />
           </div>
           {(!authState.user || !authState.user?.role.includes(Role.PROFESSIONAL)) && !xsView && (
             <Button

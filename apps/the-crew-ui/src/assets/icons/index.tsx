@@ -9,6 +9,7 @@ import pestControl from './pestControl.png';
 import electricians from './electricians.jpeg';
 import plumbing from './plumbing.png';
 import carpentering from './hammer.png';
+import theCrewLogo from './the-crew.svg';
 
 export {
   salonForWomen,
@@ -22,4 +23,5 @@ export {
   electricians,
   plumbing,
   carpentering,
+  theCrewLogo,
 };
