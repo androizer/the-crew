@@ -260,9 +260,7 @@ const MyAvatar: React.FC = props => {
         <MenuItem
           onClick={() => {
             history.push('/login');
-            dispatch(AuthThunks.logout()).then(() => {
-              dispatch(cartActions.removeAll());
-            });
+            dispatch(AuthThunks.logout());
           }}
         >
           <ListItemIcon>

@@ -10,7 +10,7 @@ const orderSlice = createSlice({
   }),
   reducers: {
     createOrder: orderAdapter.addOne,
-    createOrders: orderAdapter.addMany,
+    createOrders: orderAdapter.setAll,
     clearOrders: orderAdapter.removeAll,
     updateOrder: orderAdapter.updateOne,
     replaceOrder: orderAdapter.setOne,

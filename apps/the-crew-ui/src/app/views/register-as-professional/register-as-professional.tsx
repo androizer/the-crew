@@ -81,7 +81,7 @@ export default function RegisterAsProfessional() {
           ...user,
           phone: `+91-${user.phone}`,
         });
-        const addressDTO = { ...address, userId: userPayload.id };
+        const addressDTO = { ...address, userId: userPayload.id, isDefault: true };
         const serviceDTO = {
           ...service,
           providerId: userPayload.id,
@@ -126,7 +126,7 @@ export default function RegisterAsProfessional() {
           <AddAddressForm
             ref={ref}
             isEmbedded={true}
-            initialValues={registerDetails.address}
+            initialValues={Object.assign({}, registerDetails.address, { isDefault: true })}
             onClose={payload => {
               registerDetails.address = payload;
               setRegisterDetails(registerDetails);

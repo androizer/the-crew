@@ -1,5 +1,4 @@
 import { Button, DialogActions, DialogContent, Divider, Typography } from '@mui/material';
-import { useState } from 'react';
 import { useHistory } from 'react-router';
 
 import { useAppDispatch, useAppSelector } from '../../store';
@@ -11,17 +10,20 @@ import SelectedItem from './selected-item';
 interface ICheckoutSummary {
   proceedToAddressCallback: () => void;
 }
+
 const convenienceFee = 39;
 const CheckoutSummary: React.FC<ICheckoutSummary> = props => {
   const cartItems = useAppSelector(state => cartSelectors.selectAll(state.cart));
   const authState = useAppSelector(authSelector);
   const history = useHistory();
   const dispatch = useAppDispatch();
+
   const handlePayment = () => {
     dispatch(createCheckoutSession(cartItems)).then(res => {
       window.location = res.payload.url;
     });
   };
+
   return (
     <>
       <DialogContent dividers className={style['dialog-content']}>
@@ -60,7 +62,7 @@ const CheckoutSummary: React.FC<ICheckoutSummary> = props => {
               {cartItems.reduce((acc, item) => {
                 acc += item.quantity * item.price;
                 return acc;
-              }, 0) + convenienceFee}
+              }, convenienceFee)}
             </Typography>
           </div>
         </div>

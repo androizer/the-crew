@@ -2,6 +2,7 @@ import { Apartment, LocationCity, PinDrop, Traffic } from '@mui/icons-material';
 import {
   Button,
   FormControl,
+  FormControlLabel,
   FormHelperText,
   Grid,
   IconButton,
@@ -10,18 +11,19 @@ import {
   MenuItem,
   OutlinedInput,
   Select,
+  Switch,
   TextField,
   Typography,
 } from '@mui/material';
-import { AnyObject } from '@the-crew/common';
 import { ServiceLocation } from '@the-crew/common/enums';
+import { isBoolean, isNumber } from 'class-validator';
 import { useFormik } from 'formik';
 import React, { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { useHistory } from 'react-router';
 import { number, object, string } from 'yup';
-import { NumberInput } from '../../components';
 
+import { NumberInput } from '../../components';
 import { authSelector } from '../../store/slices';
 import { AddressDTO, RegisterAsProfessionalDTO } from '../../types';
 import style from '../login/login.module.scss';
@@ -33,6 +35,7 @@ interface IUserAddressForm {
    * Either use this element as standalone view component, or embedded component.
    */
   isEmbedded?: boolean;
+  onValidChange?: (value: boolean) => void;
 }
 
 const UserAddressWrapper: React.FC<IUserAddressForm> = props => {
@@ -50,12 +53,13 @@ const UserAddressWrapper: React.FC<IUserAddressForm> = props => {
   );
 };
 
-export const AddAddressForm = forwardRef((props: IUserAddressForm, ref) => {
-  const { values, errors, touched, handleChange, handleBlur, handleSubmit } = useFormik({
+export const AddAddressForm = forwardRef<unknown, IUserAddressForm>((props, ref) => {
+  const { values, errors, touched, handleChange, handleBlur, handleSubmit, isValid } = useFormik({
     initialValues: props.initialValues ?? ({} as AddressDTO),
     validationSchema: validationSchema,
     onSubmit: evt => {
       if (!props.isEmbedded) {
+        // TODO: logic need to be added
         console.log(evt);
       }
     },
@@ -82,6 +86,11 @@ export const AddAddressForm = forwardRef((props: IUserAddressForm, ref) => {
     };
   }, []);
 
+  useEffect(() => {
+    const anyTouched = Object.values(touched).some(bool => bool);
+    props.onValidChange?.(anyTouched && isValid);
+  }, [isValid]);
+
   return (
     <form
       noValidate
@@ -99,7 +108,25 @@ export const AddAddressForm = forwardRef((props: IUserAddressForm, ref) => {
             </Typography>
           </Grid>
         )}
-        <Grid item container spacing={2} xs={11}>
+        <Grid item container spacing={2} xs={12}>
+          {isBoolean(values.isDefault) ? (
+            <Grid item xs={12}>
+              <FormControl focused={false}>
+                <FormControlLabel
+                  control={<Switch />}
+                  label="Set as default"
+                  checked={values.isDefault}
+                  onChange={evt => {
+                    evt.persist();
+                    handleChange({
+                      ...evt,
+                      target: { name: 'isDefault', value: (evt.target as any).checked },
+                    });
+                  }}
+                ></FormControlLabel>
+              </FormControl>
+            </Grid>
+          ) : null}
           <Grid item xs={6}>
             <FormControl fullWidth focused={false} error={errors.flat && touched.flat}>
               <OutlinedInput
@@ -177,13 +204,15 @@ export const AddAddressForm = forwardRef((props: IUserAddressForm, ref) => {
                 onChange={handleChange}
                 onBlur={handleBlur}
               >
-                {Object.values(ServiceLocation).map((loc, index) => {
-                  return (
-                    <MenuItem key={index} value={loc}>
-                      {loc}
-                    </MenuItem>
-                  );
-                })}
+                {Object.values(ServiceLocation)
+                  .sort()
+                  .map((loc, index) => {
+                    return (
+                      <MenuItem key={index} value={loc}>
+                        {loc}
+                      </MenuItem>
+                    );
+                  })}
               </Select>
               <FormHelperText style={{ paddingLeft: '8px' }}>
                 {errors.state && touched.state ? errors.state : ' '}
@@ -239,5 +268,10 @@ const validationSchema = object().shape({
   street: string().required().label('Street'),
   city: string().required().label('City'),
   state: string().required().label('State'),
-  pinCode: number().required().label('Pin Code'),
+  pinCode: number()
+    .required()
+    .label('Pin Code')
+    .test('len', 'Please enter a valid pin code', value =>
+      isNumber(value) ? value.toString().length === 6 : false,
+    ),
 });

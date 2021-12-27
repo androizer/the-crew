@@ -20,7 +20,13 @@ import { SubOrderService } from '../services';
   },
   query: {
     alwaysPaginate: true,
-    join: { service: { eager: false }, order: { eager: false }, rating: { eager: false } },
+    join: {
+      service: { eager: false },
+      order: { eager: false },
+      rating: { eager: false },
+      'service.provider': { eager: false },
+      'order.consumer': { eager: false },
+    },
   },
   routes: {
     exclude: ['createManyBase'],

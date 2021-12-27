@@ -9,67 +9,56 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import { SubOrder, User } from '@the-crew/common';
-import { Role, OrderStatus, OrderStatusColour } from '@the-crew/common/enums';
+import { SubOrder } from '@the-crew/common';
+import { OrderStatus, OrderStatusColour, Role } from '@the-crew/common/enums';
 import { Formik } from 'formik';
 import { useEffect, useState } from 'react';
 import Flippy, { BackSide, FrontSide } from 'react-flippy';
 import { useDispatch } from 'react-redux';
 
-import { StatusColours } from '../../../enums';
 import { useAppSelector } from '../../../store';
-import { authSelector, userSelectors } from '../../../store/slices';
-import {
-  OrderThunks,
-  reviewThunks,
-  serviceThunks,
-  subOrderThunks,
-  userThunks,
-} from '../../../store/thunks';
+import { orderSelectors } from '../../../store/slices';
+import { reviewThunks, subOrderThunks } from '../../../store/thunks';
 import HoverRating from '../RatingBar/RatingBar';
 import style from './BookingCard.module.scss';
 
 interface IBookingCardProps {
-  subOrderDetails?: SubOrder;
-  serviceProviderDetails?: User;
+  subOrder?: SubOrder;
 }
 
-export const BookingCard: React.FC<IBookingCardProps> = props => {
-  const [isFlipped, setFlipped] = useState(false);
+export const BookingCard: React.FC<IBookingCardProps> = ({ subOrder }) => {
   const dispatch = useDispatch();
-  const user = useAppSelector(state => userSelectors.selectAll(state.user))[0];
-  const authState = useAppSelector(authSelector);
-  const [shouldReRender, setShouldReRender] = useState(false);
+  const currentUser = useAppSelector(state => state.auth.user);
+  const orders = useAppSelector(state => orderSelectors.selectAll(state.order));
+  const [isFlipped, setFlipped] = useState(false);
+  const [customer, setCustomer] = useState(null);
 
   useEffect(() => {
-    if (authState.user?.role[0] === Role.PROFESSIONAL) {
-      dispatch(userThunks.getUser({ id: props.subOrderDetails.order.consumerId }));
-    } else {
-      dispatch(userThunks.getUser({ id: props.subOrderDetails.service.providerId }));
+    if (currentUser.role.includes(Role.PROFESSIONAL)) {
+      const { order } = subOrder;
+      if (order) {
+        setCustomer(order.consumer);
+      }
+    } else if (currentUser.role.includes(Role.USER)) {
+      const order = orders.find(order => order.subOrderIds.includes(subOrder.id));
+      if (order) {
+        setCustomer(order.consumer);
+      }
     }
-  }, [
-    authState.user?.role,
-    dispatch,
-    props.subOrderDetails.order.consumerId,
-    props.subOrderDetails.service.providerId,
-  ]);
+  }, []);
 
   return (
     <Flippy flipOnClick={false} isFlipped={isFlipped} className={style.bookingServiceCard}>
       <FrontSide>
-        {/* <Paper variant="outlined" className={style.bookingServiceCard}> */}
         <div className={style.bookingSummary}>
           <div className={style.serviceNameAndStatus}>
             <Typography variant="subtitle1" className={style.serviceName}>
-              {props.subOrderDetails.service?.title}
+              {subOrder.service?.title}
             </Typography>
-            <BookingStatus
-              status={props.subOrderDetails.status}
-              message={'Request ' + props.subOrderDetails.status}
-            />
+            <BookingStatus status={subOrder.status} message={'Request ' + subOrder.status} />
           </div>
           <Typography>
-            {new Date(props.subOrderDetails.createdOn).toJSON().slice(0, 10).replace(/-/g, '/')}
+            {new Date(subOrder.createdOn).toJSON().slice(0, 10).replace(/-/g, '/')}
           </Typography>
         </div>
         <Divider />
@@ -87,12 +76,11 @@ export const BookingCard: React.FC<IBookingCardProps> = props => {
               Name:{' '}
             </Typography>
             <Typography variant="subtitle1" color="textSecondary">
-              {user?.fullName}
+              {customer?.fullName}
             </Typography>
           </div>
-          {authState.user?.role[0] !== Role.PROFESSIONAL && (
+          {currentUser.role.includes(Role.PROFESSIONAL) && (
             <>
-              {' '}
               <div className={style.bookingReviewDetails}>
                 <Typography variant="subtitle1" color="textPrimary">
                   You rated:{' '}
@@ -107,7 +95,7 @@ export const BookingCard: React.FC<IBookingCardProps> = props => {
                       color: 'green',
                     }}
                   />
-                  {props.subOrderDetails.rating?.rating}
+                  {subOrder.rating?.rating}
                 </Typography>
               </div>
               <div className={style.bookingReviewDetails}>
@@ -115,21 +103,21 @@ export const BookingCard: React.FC<IBookingCardProps> = props => {
                   Comments:
                 </Typography>
                 <Typography variant="subtitle1" color="textSecondary">
-                  {props.subOrderDetails.rating?.comment}
+                  {subOrder.rating?.comment}
                 </Typography>
               </div>
             </>
           )}
         </div>
         <div className={style.rateNow}>
-          {authState.user.role[0] === Role.PROFESSIONAL ? (
+          {currentUser.role.includes(Role.PROFESSIONAL) ? (
             <Button
               variant="contained"
               color="primary"
-              disabled={props.subOrderDetails.status === OrderStatus.COMPLETED}
+              disabled={subOrder.status === OrderStatus.COMPLETED}
               onClick={() => {
                 //let temp = new SubOrder();
-                const temp = { ...props.subOrderDetails };
+                const temp = { ...subOrder };
                 temp.status = OrderStatus.COMPLETED;
                 dispatch(
                   subOrderThunks.saveSubOrders({
@@ -144,7 +132,7 @@ export const BookingCard: React.FC<IBookingCardProps> = props => {
             <Button
               variant="contained"
               color="primary"
-              disabled={props.subOrderDetails.status !== OrderStatus.COMPLETED}
+              disabled={subOrder.status !== OrderStatus.COMPLETED}
               onClick={() => {
                 setFlipped(!isFlipped);
               }}
@@ -152,17 +140,7 @@ export const BookingCard: React.FC<IBookingCardProps> = props => {
               Rate Now
             </Button>
           )}
-          {/* <Button
-            variant="contained"
-            color="primary"
-            onClick={() => {
-              setFlipped(!isFlipped);
-            }}
-          >
-            Rate Now
-          </Button> */}
         </div>
-        {/* </Paper> */}
       </FrontSide>
       <BackSide className={style.bookingServiceCard}>
         <Grid container flexDirection="column" style={{ height: '100%' }}>
@@ -176,8 +154,8 @@ export const BookingCard: React.FC<IBookingCardProps> = props => {
           <Grid item flex={1}>
             <Formik
               initialValues={{
-                rating: props.subOrderDetails?.rating?.rating,
-                comment: props.subOrderDetails?.rating?.comment,
+                rating: subOrder?.rating?.rating,
+                comment: subOrder?.rating?.comment,
               }}
               onSubmit={values => {
                 dispatch(
@@ -185,23 +163,15 @@ export const BookingCard: React.FC<IBookingCardProps> = props => {
                     payload: {
                       comment: values.comment,
                       rating: values.rating,
-                      reviewerId: authState.user?.id,
-                      serviceId: props.subOrderDetails.serviceId,
+                      reviewerId: currentUser?.id,
+                      serviceId: subOrder.serviceId,
                     },
                   }),
                 );
                 setFlipped(!isFlipped);
               }}
             >
-              {({
-                values,
-                errors,
-                touched,
-                handleChange,
-                handleBlur,
-                handleSubmit,
-                isSubmitting,
-              }) => (
+              {({ values, handleChange, handleBlur, handleSubmit }) => (
                 <form
                   className={style.rating}
                   noValidate

@@ -1,16 +1,28 @@
 import { CreateQueryParams } from '@nestjsx/crud-request';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { uuid } from '@the-crew/common';
+import { batch } from 'react-redux';
 
 import { subOrderApi } from '../../services';
 import { subOrderActions } from '../slices';
 
 const getSubOrders = createAsyncThunk(
   'sub-orders/GetMany',
-  async (query: CreateQueryParams = {}, { dispatch }) => {
-    dispatch(subOrderActions.clearSubOrders());
-    const response = await subOrderApi.getMany(query);
-    dispatch(subOrderActions.addSubOrders(response.data.data));
+  async (query: CreateQueryParams = {}, { dispatch, fulfillWithValue, rejectWithValue }) => {
+    try {
+      dispatch(subOrderActions.setLoading(true));
+      const {
+        data: { data },
+      } = await subOrderApi.getMany(query);
+      batch(() => {
+        dispatch(subOrderActions.addSubOrders(data));
+        dispatch(subOrderActions.setLoading(false));
+      });
+      return fulfillWithValue(data as any);
+    } catch (error) {
+      dispatch(subOrderActions.setLoading(false));
+      throw rejectWithValue(error);
+    }
   },
 );
 

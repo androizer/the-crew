@@ -55,4 +55,8 @@ export class EnvironmentVariables {
   @IsString()
   @IsNotEmpty()
   NX_TYPEORM_DB: string;
+
+  @IsString()
+  @IsNotEmpty()
+  NX_STRIPE_PRIVATE_KEY: string;
 }

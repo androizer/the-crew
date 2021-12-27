@@ -1,7 +1,20 @@
-import { Controller, UseGuards } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
-import { Crud, CrudController } from '@nestjsx/crud';
-import { UserAddress } from '@the-crew/common';
+import {
+  Controller,
+  Param,
+  ParseUUIDPipe,
+  Patch,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
+import { ApiConflictResponse, ApiNotFoundResponse, ApiTags } from '@nestjs/swagger';
+import {
+  Crud,
+  CrudController,
+  CrudRequest,
+  CrudRequestInterceptor,
+  ParsedRequest,
+} from '@nestjsx/crud';
+import { UserAddress, uuid } from '@the-crew/common';
 
 import { AnonymousGuard, JwtAuthGuard } from '../../auth/guards';
 import { UserAddressEntity } from '../models/entities';
@@ -48,4 +61,16 @@ import { UserAddressService } from '../services';
 @Controller('user-addresses')
 export class UserAddressController implements CrudController<UserAddress> {
   constructor(public readonly service: UserAddressService) {}
+
+  @ApiNotFoundResponse()
+  @ApiConflictResponse()
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(CrudRequestInterceptor)
+  @Patch('update-default/:id')
+  setDefaultAddress(
+    @ParsedRequest() req: CrudRequest,
+    @Param('id', ParseUUIDPipe) id: uuid,
+  ): Promise<UserAddress> {
+    return this.service.updateDefaultAddress(req, id);
+  }
 }

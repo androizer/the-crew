@@ -9,7 +9,7 @@ const userAddressSlice = createSlice({
     loading: false,
   }),
   reducers: {
-    addUserAddresses: userAddressAdapter.setMany,
+    addUserAddresses: userAddressAdapter.setAll,
     clearUserAddresses: userAddressAdapter.removeAll,
     addUserAddress: userAddressAdapter.addOne,
     updateUserAddress: userAddressAdapter.updateOne,

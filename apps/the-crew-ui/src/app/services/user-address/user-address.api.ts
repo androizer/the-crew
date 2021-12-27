@@ -1,4 +1,5 @@
-import { UserAddress } from '@the-crew/common';
+import { CreateQueryParams } from '@nestjsx/crud-request';
+import { UserAddress, uuid } from '@the-crew/common';
 import { axiosInstance, BaseHttpAPI } from '../../core/services';
 
 const instance = axiosInstance;
@@ -10,6 +11,21 @@ class UserAddressHttpAPI extends BaseHttpAPI<UserAddress> {
       basePath,
       instance,
     });
+  }
+
+  /**
+   * Set the address of addressId as default and mark all
+   * other address of the associated user as non-default.
+   */
+  updateDefaultAddress<R = UserAddress>(addressId: uuid, params: CreateQueryParams = {}) {
+    const url = `${basePath}/update-default/${addressId}`;
+    return instance.patch<R>(
+      url,
+      {},
+      {
+        params,
+      },
+    );
   }
 }
 

@@ -19,6 +19,12 @@ export class UserAddressEntity extends OwnerTimestampEntity implements IUserAddr
   street: string;
 
   @Column({
+    type: 'text',
+    nullable: true,
+  })
+  city: string;
+
+  @Column({
     type: 'integer',
   })
   pinCode: number;

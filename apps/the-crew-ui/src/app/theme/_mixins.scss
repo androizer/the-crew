@@ -20,9 +20,15 @@
   align-content: $x-axis;
 }
 
-@mixin fxLayoutGap($gap: 16px) {
-  & > *:not(:last-child) {
-    margin-bottom: $gap;
+@mixin fxLayoutGap($direction: column, $gap: 16px) {
+  @if $direction == column {
+    & > *:not(:last-child) {
+      margin-bottom: $gap;
+    }
+  } @else {
+    & > *:not(:first-child) {
+      margin-left: $gap;
+    }
   }
 }
 

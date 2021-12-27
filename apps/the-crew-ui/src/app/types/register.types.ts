@@ -47,6 +47,7 @@ export class AddressDTO {
   city: string;
   state: string;
   pinCode: number;
+  isDefault: boolean; // don't assign any fallback value. it's on purpose.
 
   constructor(data: Partial<AddressDTO> = {}) {
     this.flat = data.flat ?? '';
@@ -54,6 +55,7 @@ export class AddressDTO {
     this.city = data.city ?? '';
     this.state = data.state ?? '';
     this.pinCode = data.pinCode;
+    this.isDefault = data.isDefault;
   }
 }
 

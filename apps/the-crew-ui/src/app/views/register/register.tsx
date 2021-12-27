@@ -281,7 +281,7 @@ const PhoneTextField = forwardRef<unknown, AnyObject>((props, ref) => {
     <NumberInput
       {...props}
       getInputRef={ref}
-      format={`${props.prefix}-#####-#####`}
+      format={`(${props.prefix}) #####-#####`}
       mask="_"
     ></NumberInput>
   );

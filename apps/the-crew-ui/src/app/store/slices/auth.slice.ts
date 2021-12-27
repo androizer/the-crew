@@ -56,12 +56,6 @@ export const authSlice = createSlice({
           state.isLoading = false;
         },
       )
-      .addCase(AuthThunks.logout.fulfilled, state => {
-        state.accessToken = null;
-        state.refreshToken = null;
-        state.user = null;
-        state.isLoading = false;
-      })
       .addCase(AuthThunks.whoAmI.fulfilled, (state, action: PayloadAction<User>) => {
         state.user = action.payload;
       }),

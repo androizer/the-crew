@@ -9,7 +9,11 @@ interface IAddButton {
 }
 
 const AddButton: React.FC<IAddButton> = props => {
-  const [count, setCount] = useState(props.count ?? 0);
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    setCount(props.count);
+  }, [props.count]);
 
   return (
     <ButtonGroup disableElevation variant="outlined" color="primary">

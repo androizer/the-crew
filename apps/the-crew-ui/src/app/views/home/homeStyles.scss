@@ -1,56 +1,45 @@
-.homeRoot {
-  background-color: #bdbdbd;
-}
+@use '../../theme/mixins' as mixin;
 
 .homePageImgContainer {
   display: flex;
-  height: 80vh;
-  background-color: white;
-}
-
-.homePageImgTemplate {
-  width: 50%;
-  height: 100%;
-}
-
-.homePageImg {
-  width: 130%;
-  height: 100%;
+  width: 100%;
+  height: auto;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  background-blend-mode: darken;
+  background-color: #00000070;
 }
 
 .homeScreenTitleRoot {
-  background: linear-gradient(90deg, transparent, #2b2623 20%);
-  text-align: right;
-  width: 83%;
+  background: linear-gradient(90deg, transparent, #2b2623de 30%);
   height: 100%;
-}
-
-.homeScreenTitleContainer {
-  display: grid;
+  display: flex;
   color: white;
+  padding: 32px 32px 0 32px;
 }
 
 .titleRoot {
   display: flex;
   flex-direction: column;
-  margin: 80px 50px 0 200px;
-  height: 500px;
-  text-align: left;
+  min-height: 500px;
+  height: auto;
 }
 
 .title {
   letter-spacing: 3px;
-  color: #bdbdbd;
-  font-size: 24px;
+  color: white;
+  font-size: 32px;
+  font-weight: bold;
 }
 
 .typingEffect {
-  width: 31ch;
-  animation: typing 5s steps(22), blink 0.5s step-end infinite alternate;
+  width: 28ch;
+  animation: typing 5s steps(60), blink 0.5s step-end infinite alternate;
   animation-iteration-count: infinite;
+  border-right: 3px solid;
   white-space: nowrap;
   overflow: hidden;
-  border-right: 3px solid;
 }
 
 @keyframes typing {
@@ -75,40 +64,35 @@
   color: #bdbdbd;
   letter-spacing: 1px;
   margin-bottom: 36px;
+  height: 100px;
 }
 
 .homeScreenAutoSearchDiv {
-  width: 332px;
+  width: 310px;
   border-radius: 4px;
   background-color: #fff;
   padding: 24px 16px;
-  margin-left: 50px;
   font-size: 16px;
   font-weight: 600;
   line-height: 1.5;
   color: #212121;
   margin-bottom: 16px;
+  @include mixin.fxLayoutGap(column, 8px);
 }
 .homePageContent {
   width: 100%;
   margin: 0 auto;
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
   background-color: white;
   padding-top: 32px;
+  @include mixin.fxLayoutGap();
 }
 
 .whyTheCrewDiv {
-  box-sizing: border-box;
   font-size: 32px;
   font-weight: 700;
   line-height: 1.5;
   color: #000;
-  margin-bottom: 36px;
   margin-left: 24px;
-
-  width: 50%;
 }
 
 .whyTheCrewImgContainer {
@@ -151,9 +135,12 @@
 .qualityAssuredRoot {
   border-radius: 8px;
   background-color: #f5f9ff;
-  padding: 48px;
-  width: 50%;
+  padding: 16px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
 }
+
 .qualityAssuredImgContainer {
   width: 106px;
   height: 120px;
@@ -170,11 +157,14 @@
   line-height: 1.5;
   color: #000;
   margin-bottom: 12px;
-  margin-top: 36px;
 }
 
 .qualityAssuredDesc {
   font-size: 18px;
   line-height: 1.44;
   color: #757575;
+}
+
+.static-ui-elements {
+  @include mixin.fxLayoutGap(row, 16px);
 }

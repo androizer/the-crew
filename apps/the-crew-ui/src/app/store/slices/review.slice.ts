@@ -7,7 +7,7 @@ const reviewSlice = createSlice({
   name: 'reviews',
   initialState: reviewAdapter.getInitialState(),
   reducers: {
-    addReviews: reviewAdapter.addMany,
+    addReviews: reviewAdapter.setAll,
     clearReviews: reviewAdapter.removeAll,
     addReview: reviewAdapter.addOne,
     updateReview: reviewAdapter.updateOne,

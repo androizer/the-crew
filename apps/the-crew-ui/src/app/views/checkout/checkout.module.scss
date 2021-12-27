@@ -8,7 +8,7 @@
 .dialog-content {
   padding: 16px;
   @include mixin.fxLayout(column);
-  @include mixin.fxLayoutGap(16px);
+  @include mixin.fxLayoutGap();
 }
 
 .dialogTitle {

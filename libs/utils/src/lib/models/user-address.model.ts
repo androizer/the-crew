@@ -12,7 +12,8 @@ import {
 } from 'class-validator';
 
 import { User } from '.';
-import { IUserAddress, uuid } from '../types';
+
+import type { IUserAddress, uuid } from '../types';
 
 export class UserAddress implements IUserAddress {
   @IsUUID()
@@ -26,6 +27,10 @@ export class UserAddress implements IUserAddress {
   @IsString()
   @IsNotEmpty()
   street: string;
+
+  @IsString()
+  @IsNotEmpty()
+  city: string;
 
   @IsNumber()
   @IsPositive()

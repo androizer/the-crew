@@ -11,6 +11,7 @@ import {
 } from '@mui/material';
 import { useTheme } from '@mui/system';
 import { Role, ServiceLocation, ServiceRequestType } from '@the-crew/common/enums';
+import { camelCase, startCase } from 'lodash-es';
 import { MouseEvent, useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router';
 import { useHistory } from 'react-router-dom';
@@ -25,6 +26,7 @@ import {
   salonForMen,
   salonForWomen,
 } from '../../../assets/icons';
+import { HardwareTools } from '../../../assets/images/search-services';
 import { useAppSelector } from '../../store';
 import { authSelector } from '../../store/slices';
 import style from './search-service.module.scss';
@@ -34,6 +36,7 @@ export default function ServiceSearch() {
   const query = useMemo(() => new URLSearchParams(search), [search]);
   const theme = useTheme();
   const smView = useMediaQuery(theme.breakpoints.down('md'));
+  const mobileView = useMediaQuery(theme.breakpoints.down(700));
   const [location] = useState<ServiceLocation | string>(query.get('city'));
   const [professionType, setProfession] = useState<ServiceRequestType>(null);
   const [anchorEl, setAnchorEl] = useState<HTMLDivElement | null>(null);
@@ -43,7 +46,7 @@ export default function ServiceSearch() {
   const user = useAppSelector(authSelector).user;
 
   useEffect(() => {
-    user?.role[0] === Role.PROFESSIONAL && history.push('/bookings');
+    user?.role.includes(Role.PROFESSIONAL) && history.push('/bookings');
   }, [history, user]);
 
   const handleOpen = (event: MouseEvent<HTMLDivElement>) => {
@@ -56,7 +59,7 @@ export default function ServiceSearch() {
 
   return (
     <div className={style.searchPageRoot}>
-      <div className={style.searchPageHome}>
+      <div className={style.searchPageHome} style={{ backgroundImage: `url(${HardwareTools})` }}>
         <Grid
           container
           flexDirection="column"
@@ -88,8 +91,9 @@ export default function ServiceSearch() {
             <Grid item xs width="100%">
               <Autocomplete
                 className={style.servicesAutoComplete}
-                options={Object.values(ServiceRequestType).map(service => ({ service }))}
-                getOptionLabel={option => option.service}
+                value={professionType}
+                options={Object.values(ServiceRequestType).map(service => service)}
+                getOptionLabel={service => startCase(camelCase(service))}
                 openOnFocus={false}
                 renderInput={params => (
                   <TextField
@@ -99,9 +103,9 @@ export default function ServiceSearch() {
                     focused={false}
                   />
                 )}
-                onChange={(_, value: { service: ServiceRequestType }) => {
+                onChange={(_, value: ServiceRequestType) => {
                   if (value) {
-                    setProfession(value.service);
+                    setProfession(value);
                   }
                 }}
               />
@@ -152,13 +156,11 @@ export default function ServiceSearch() {
           </div>
         </Popover>
       </div>
-      <AvailableServices setProfession={setProfession} />
+      {!mobileView && <AvailableServices setProfession={setProfession} />}
 
-      {location ? (
+      {location && professionType ? (
         <ServiceList location={location} professionType={professionType} />
-      ) : (
-        history.push('/')
-      )}
+      ) : null}
     </div>
   );
 }
@@ -236,7 +238,14 @@ const AvailableServices: React.FC<IAvailableServices> = props => {
   return (
     <Grid container position="relative" padding={1}>
       <Paper elevation={6} className={style.availableServices}>
-        <Grid container justifyContent="center" alignItems="center" spacing={2} margin="auto">
+        <Grid
+          container
+          justifyContent="center"
+          alignItems="center"
+          spacing={2}
+          margin="auto"
+          width="100%"
+        >
           {availableServices.map((service, index) => {
             return (
               <Grid

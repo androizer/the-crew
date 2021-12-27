@@ -11,7 +11,7 @@ import {
 } from 'class-validator';
 
 import { ServiceRequest, User } from '.';
-import { IReview, uuid } from '../types';
+import type { IReview, uuid } from '../types';
 
 export class Review implements IReview {
   @IsUUID()

@@ -4,4 +4,5 @@ export enum ServiceLocation {
   CHANDIGARH = 'Chandigarh',
   JAIPUR = 'Jaipur',
   VISAKHAPATNAM = 'Visakhapatnam',
+  PUNJAB = 'Punjab',
 }

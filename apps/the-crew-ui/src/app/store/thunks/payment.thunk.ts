@@ -5,7 +5,7 @@ import { PaymentService, PaymentSessionService } from '../../services';
 import { Cart } from '../../types';
 
 /**
- * Create checkout ession
+ * Create checkout session
  */
 const createCheckoutSession = createAsyncThunk(
   'payment/create-checkout-session',

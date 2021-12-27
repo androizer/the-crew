@@ -5,5 +5,5 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  @include mixin.fxLayoutGap(16px);
+  @include mixin.fxLayoutGap();
 }

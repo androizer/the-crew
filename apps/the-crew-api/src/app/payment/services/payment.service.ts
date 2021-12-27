@@ -1,16 +1,24 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
+import { ConfigType } from '@nestjs/config';
 import { ServiceRequest } from '@the-crew/common';
 import Stripe from 'stripe';
 
+import { PaymentConfig } from '../../../configs';
 import { ServiceRequestService } from '../../service-request/services';
 
 @Injectable()
 export class PaymentService {
-  constructor(private readonly serviceRequestService: ServiceRequestService) {}
-  stripe = new Stripe(process.env.NX_STRIPE_PRIVATE_KEY, {
-    apiVersion: '2020-08-27',
-  });
-  public async RetrieveSessionBySessionId(id: string | '') {
+  stripe: Stripe;
+  constructor(
+    private readonly serviceRequestService: ServiceRequestService,
+    @Inject(PaymentConfig.KEY) private readonly paymentConfig: ConfigType<typeof PaymentConfig>,
+  ) {
+    this.stripe = new Stripe(paymentConfig.stripeSecretKey, {
+      apiVersion: '2020-08-27',
+    });
+  }
+
+  public async RetrieveSessionBySessionId(id: string) {
     return await this.stripe.checkout.sessions.retrieve(id);
   }
 
@@ -20,14 +28,14 @@ export class PaymentService {
       payment_method_types: ['card'],
       mode: 'payment',
       line_items: services.map(item => {
-        const serv = availableServices.find(x => x.id === item.id);
+        const service = availableServices.find(x => x.id === item.id);
         return {
           price_data: {
             currency: 'inr',
             product_data: {
-              name: serv.title,
+              name: service.title,
             },
-            unit_amount: serv.price * 100,
+            unit_amount: service.price * 100,
           },
           quantity: item.quantity,
         };

@@ -11,7 +11,7 @@ import {
 
 import { Order, Review, ServiceRequest } from '.';
 import { OrderStatus } from '../enums';
-import { ISubOrder, uuid } from '../types';
+import type { ISubOrder, uuid } from '../types';
 
 export class SubOrder implements ISubOrder {
   @IsUUID()

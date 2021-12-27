@@ -7,5 +7,5 @@
   @include mixin.fxFlex();
   @include mixin.fxLayout(column);
   @include mixin.fxLayoutAlign(start, center);
-  @include mixin.fxLayoutGap(16px);
+  @include mixin.fxLayoutGap();
 }

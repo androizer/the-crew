@@ -1,7 +1,6 @@
-import { IOwnerTimestamp } from '.';
 import { OrderStatus } from '../enums';
-import { IOrder, IReview, IServiceRequest } from '../types';
-import { uuid } from './util.types';
+
+import type { IOrder, IReview, IServiceRequest, IOwnerTimestamp, uuid } from '../types';
 
 export interface ISubOrder extends IOwnerTimestamp {
   id: uuid;

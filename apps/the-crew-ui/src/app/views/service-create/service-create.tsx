@@ -60,8 +60,10 @@ export const CreateServiceForm = forwardRef((props: ICreateServiceForm, ref) => 
       initialValues={props.initialValues}
       validationSchema={validationSchema}
       onSubmit={evt => {
-        // TODO: logic need to be added
-        console.log(evt);
+        if (!props.isEmbedded) {
+          // TODO: logic need to be added
+          console.log(evt);
+        }
       }}
     >
       {({ values, errors, touched, handleChange, handleBlur, handleSubmit }) => {
@@ -252,7 +254,7 @@ export const CreateServiceForm = forwardRef((props: ICreateServiceForm, ref) => 
               </Grid>
               {!props.isEmbedded && (
                 <Grid item>
-                  <Button variant="contained" color="secondary" fullWidth={true}>
+                  <Button type="submit" variant="contained" color="secondary" fullWidth={true}>
                     Submit
                   </Button>
                 </Grid>
@@ -274,8 +276,8 @@ export default CreateServiceForm;
 const validationSchema = object().shape({
   title: string().label('Title').required(),
   description: string().label('Description').required(),
-  type: string().label('Service Type').required(),
-  price: number().label('Price').required().integer(),
+  type: string().label('Service Type').required().oneOf(Object.values(ServiceRequestType)),
+  price: number().label('Price').required().integer().positive(),
   included: array().of(string()),
   excluded: array().of(string()),
 });

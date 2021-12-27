@@ -1,6 +1,5 @@
 import { Star } from '@mui/icons-material';
-import Rating from '@mui/lab/Rating';
-import { Box } from '@mui/material';
+import { Box, Rating } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import { useState } from 'react';
 

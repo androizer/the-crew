@@ -2,9 +2,13 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { envValidator as validate, TypeOrmConfigService } from '../configs';
-import AuthConfig from '../configs/auth.config';
-import DatabaseConfig from '../configs/db.config';
+import {
+  AuthConfig,
+  DBConfig,
+  envValidator as validate,
+  PaymentConfig,
+  TypeOrmConfigService,
+} from '../configs';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
@@ -20,7 +24,7 @@ import { UserModule } from './user/user.module';
       isGlobal: true,
       cache: true,
       validate,
-      load: [DatabaseConfig, AuthConfig],
+      load: [DBConfig, AuthConfig, PaymentConfig],
     }),
     TypeOrmModule.forRootAsync({
       name: 'default',

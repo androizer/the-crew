@@ -10,7 +10,7 @@ const subOrderSlice = createSlice({
   }),
   reducers: {
     addSubOrder: subOrderAdapter.addOne,
-    addSubOrders: subOrderAdapter.addMany,
+    addSubOrders: subOrderAdapter.setAll,
     clearSubOrders: subOrderAdapter.removeAll,
     updateSubOrder: subOrderAdapter.updateOne,
     replaceSubOrder: subOrderAdapter.setOne,

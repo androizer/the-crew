@@ -5,6 +5,7 @@ import { Route, Switch } from 'react-router-dom';
 
 import style from './app.module.scss';
 import { Footer, Header, Main, Startup } from './components';
+import { SnackbarUtilsConfigurator } from './core/services/snackbar-config.service';
 import store from './store';
 import {
   Bookings,
@@ -27,13 +28,16 @@ export function App() {
         horizontal: xsView ? 'center' : 'right',
         vertical: xsView ? 'bottom' : 'top',
       }}
+      autoHideDuration={3000}
     >
+      <SnackbarUtilsConfigurator />
       <div className={style.root}>
         <Provider store={store}>
           <Startup>
             <Header />
             <Main>
               <Switch>
+                {/* make a protected route hoc */}
                 <Route path="/" exact render={() => <Home />} />
                 <Route path="/login" exact render={() => <Login />} />
                 <Route path="/register" exact render={() => <Register />} />

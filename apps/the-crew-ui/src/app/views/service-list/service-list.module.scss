@@ -24,3 +24,10 @@
     user-select: none;
   }
 }
+
+.not-found-container {
+  @include mixin.fxLayout(column !important);
+  @include mixin.fxLayoutAlign(center, center);
+  width: 100%;
+  text-align: center;
+}

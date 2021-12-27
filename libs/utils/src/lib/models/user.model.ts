@@ -15,7 +15,7 @@ import {
 
 import { UserAddress, ServiceRequest, Review } from '.';
 import { Role } from '../enums';
-import { IUser, uuid } from '../types';
+import type { IUser, uuid } from '../types';
 
 export class User implements IUser {
   @IsUUID()

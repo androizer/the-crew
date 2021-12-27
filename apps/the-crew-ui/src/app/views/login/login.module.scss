@@ -2,17 +2,21 @@
 
 .root {
   @include mixin.fxFlex();
-  @include mixin.fxLayout(column);
-  @include mixin.fxLayoutAlign(center, center);
+  @include mixin.fxLayoutAlign(flex-end, center);
   padding: 16px;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  background-blend-mode: darken;
+  background-color: #00000070;
 }
 
 .root-paper {
   @include mixin.fxLayoutAlign(center, center);
   @include mixin.fxLayout(column);
-  height: 400px;
-  width: 350px;
+  height: 350px;
+  width: 300px;
   overflow: hidden;
-  margin: auto;
   padding: 16px;
+  margin: auto 32px auto 0;
 }

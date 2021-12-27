@@ -1,16 +1,40 @@
 import { CreateQueryParams } from '@nestjsx/crud-request';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { uuid } from '@the-crew/common';
+import { batch } from 'react-redux';
 
 import { OrderApi } from '../../services';
-import { orderActions } from '../slices';
+import { orderActions, subOrderActions } from '../slices';
 
 const getOrders = createAsyncThunk(
   'orders/GetMany',
-  async (query: CreateQueryParams = {}, { dispatch }) => {
-    dispatch(orderActions.clearOrders());
-    const response = await OrderApi.getMany(query);
-    dispatch(orderActions.createOrders(response.data.data));
+  async (query: CreateQueryParams = {}, { dispatch, fulfillWithValue, rejectWithValue }) => {
+    try {
+      batch(() => {
+        dispatch(orderActions.setLoading(true));
+        dispatch(subOrderActions.setLoading(true));
+      });
+      const {
+        data: { data },
+      } = await OrderApi.getMany(query);
+      const allSuborders = data.reduce((acc, order) => {
+        if (Array.isArray(order.subOrders)) {
+          return acc.concat(order.subOrders);
+        }
+        return acc;
+      }, []);
+      batch(() => {
+        dispatch(orderActions.createOrders(data));
+        dispatch(subOrderActions.addSubOrders(allSuborders));
+        dispatch(orderActions.setLoading(false));
+        dispatch(subOrderActions.setLoading(false));
+      });
+      return fulfillWithValue(data as any);
+    } catch (error) {
+      dispatch(orderActions.setLoading(false));
+      dispatch(subOrderActions.setLoading(false));
+      throw rejectWithValue(error);
+    }
   },
 );
 
@@ -35,7 +59,7 @@ const createOrder = createAsyncThunk(
 
 export { getOrders, getOrder, createOrder };
 
-export const OrderThunks = {
+export const orderThunks = {
   getOrders,
   getOrder,
   createOrder,

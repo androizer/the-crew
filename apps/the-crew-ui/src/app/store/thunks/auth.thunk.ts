@@ -1,7 +1,10 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
+import { User } from '@the-crew/common';
 
+import SnackbarUtils from '../../core/services/snackbar-config.service';
 import { authApi, TokenService } from '../../services';
 import { AuthCreds } from '../../types';
+import { userAddressThunks } from './user-address.thunk';
 
 /**
  * Login Request
@@ -15,7 +18,11 @@ const loginAndFetchTokens = createAsyncThunk(
       TokenService.setRefreshToken(response.data.refreshToken);
       TokenService.setExpireTimestamp(response.data.expiresAt);
       setTimeout(() => {
-        dispatch(whoAmI());
+        dispatch(whoAmI())
+          .unwrap()
+          .then((user: User) => {
+            SnackbarUtils.success(`Welcome ${user.fullName}`);
+          });
       }, 10);
       return response.data;
     } catch (error) {
@@ -61,17 +68,21 @@ const logout = createAsyncThunk('auth/logout', async (_, { fulfillWithValue }) =
   }
 });
 
-const whoAmI = createAsyncThunk('auth/whoAmI', async (_, { rejectWithValue }) => {
-  try {
-    const response = await authApi.whoAmI();
-    return response.data;
-  } catch (error) {
-    if (error.isAxiosError) {
-      throw rejectWithValue({ ...error.response.data, status: error.response.status });
+const whoAmI = createAsyncThunk(
+  'auth/whoAmI',
+  async (_, { dispatch, rejectWithValue, fulfillWithValue }) => {
+    try {
+      const response = await authApi.whoAmI();
+      dispatch(userAddressThunks.getUserAddresses({ search: { userId: response.data.id } }));
+      return fulfillWithValue(response.data as any);
+    } catch (error) {
+      if (error.isAxiosError) {
+        throw rejectWithValue({ ...error.response.data, status: error.response.status });
+      }
+      throw rejectWithValue(error);
     }
-    throw rejectWithValue(error);
-  }
-});
+  },
+);
 
 export { loginAndFetchTokens, refetchTokens, logout, whoAmI };
 

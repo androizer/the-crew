@@ -20,6 +20,19 @@ import { OrderService } from '../services';
   },
   query: {
     alwaysPaginate: true,
+    join: {
+      subOrders: {
+        eager: false,
+      },
+      consumer: {
+        eager: false,
+      },
+      'subOrders.service': {
+        eager: false,
+      },
+      'subOrders.rating': { eager: false },
+      'subOrders.service.provider': { eager: false, alias: 'serviceProvider' },
+    },
   },
 })
 @UseInterceptors(ClassSerializerInterceptor)

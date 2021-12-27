@@ -13,11 +13,12 @@ import {
 } from '@mui/material';
 import { Formik } from 'formik';
 import { useSnackbar } from 'notistack';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useHistory } from 'react-router';
 import { object, string } from 'yup';
 
+import { loginBanner } from '../../../assets/images/login';
 import { useAppDispatch } from '../../store';
 import { authSelector } from '../../store/slices';
 import { loginAndFetchTokens } from '../../store/thunks';
@@ -30,12 +31,14 @@ export default function Login() {
   const history = useHistory();
   const { enqueueSnackbar } = useSnackbar();
 
-  if (authState.user) {
-    history.push('/');
-  }
+  useEffect(() => {
+    if (authState.user) {
+      history.push('/');
+    }
+  }, [authState.user]);
 
   return (
-    <div className={style.root}>
+    <div className={style.root} style={{ backgroundImage: `url(${loginBanner})` }}>
       <Paper elevation={16} className={style['root-paper']}>
         <Grid container direction="column" spacing={4}>
           <Grid item style={{ textAlign: 'center' }}>

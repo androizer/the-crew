@@ -13,7 +13,7 @@ import {
 
 import { Review, User } from '.';
 import { ServiceRequestType } from '../enums';
-import { IServiceRequest, uuid } from '../types';
+import type { IServiceRequest, uuid } from '../types';
 
 export class ServiceRequest implements IServiceRequest {
   @IsUUID()

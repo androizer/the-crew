@@ -4,7 +4,8 @@ import { Role, ServiceLocation, ServiceRequestType } from '@the-crew/common/enum
 import { useEffect, useState } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 
-import { ServiceCard, ServiceDetail } from '../../components';
+import { searchRecords } from '../../../assets/images/generic';
+import { OverlayLoading, ServiceCard, ServiceDetail } from '../../components';
 import { useAppDispatch, useAppSelector } from '../../store';
 import { authSelector, cartSelectors, serviceSelectors } from '../../store/slices';
 import { serviceThunks } from '../../store/thunks';
@@ -24,22 +25,22 @@ const ServiceList: React.FC<IServiceList> = props => {
   const [selectedService, setSelectedService] = useState(null);
   const [showDetail, setShowDetail] = useState(false);
   const [showCheckout, setShowCheckout] = useState(false);
+  const isLoading = useAppSelector(state => state.services.loading);
   const services = useAppSelector(state => serviceSelectors.selectAll(state.services));
   const cartItems = useAppSelector(state => cartSelectors.selectAll(state.cart));
   const authState = useAppSelector(authSelector);
   const location = useLocation();
 
   useEffect(() => {
-    if (location.pathname === '/services' && authState.user?.role[0] === Role.PROFESSIONAL) {
-      if (!authState.user) {
-        history.push('/login');
-      } else {
-        dispatch(
-          serviceThunks.getServices({
-            join: [{ field: 'provider' }, { field: 'reviews' }],
-          }),
-        );
-      }
+    if (location.pathname === '/services' && authState.user?.role.includes(Role.PROFESSIONAL)) {
+      dispatch(
+        serviceThunks.getServices({
+          join: [{ field: 'provider' }, { field: 'reviews' }],
+          search: {
+            providerId: authState.user.id,
+          },
+        }),
+      );
     } else
       dispatch(
         serviceThunks.getServices({
@@ -54,11 +55,11 @@ const ServiceList: React.FC<IServiceList> = props => {
         }),
       );
   }, [
+    dispatch,
+    history,
     authState.user,
     authState.user?.id,
     authState.user?.role,
-    dispatch,
-    history,
     location.pathname,
     props.location,
     props.professionType,
@@ -68,20 +69,34 @@ const ServiceList: React.FC<IServiceList> = props => {
     <div className={style.service_list_container}>
       <Main open={showDetail}>
         <Grid container justifyContent="center" alignItems="center" spacing={2}>
-          {services.map((service: ServiceRequest, index: number) => {
-            return (
-              <Grid item key={index}>
-                <ServiceCard
-                  data={service}
-                  toggleViewDetails={() => {
-                    setShowDetail(!showDetail);
-                    setSelectedService(service);
-                  }}
-                />
-              </Grid>
-            );
-          })}
+          {isLoading ? (
+            <OverlayLoading open={isLoading} />
+          ) : (
+            services.map((service: ServiceRequest, index: number) => {
+              return (
+                <Grid item key={index}>
+                  <ServiceCard
+                    service={service}
+                    toggleViewDetails={() => {
+                      setShowDetail(!showDetail);
+                      setSelectedService(service);
+                    }}
+                  />
+                </Grid>
+              );
+            })
+          )}
+          {!services.length ? (
+            <Grid container className={style['not-found-container']}>
+              <img src={searchRecords} alt="not-found.svg" height="500px" width="auto" />
+              <Typography variant="h5">Oops..! Services not found!</Typography>
+              <Typography variant="subtitle1" color="gray">
+                Try another service type.
+              </Typography>
+            </Grid>
+          ) : null}
         </Grid>
+        {/* Checkout Bar */}
         {!!cartItems.length && (
           <Box className={style['checkout-container']}>
             <Grid
