@@ -17,7 +17,7 @@
 
 @mixin fxLayoutAlign($y-axis: start, $x-axis: start) {
   justify-content: $y-axis;
-  align-content: $x-axis;
+  align-items: $x-axis;
 }
 
 @mixin fxLayoutGap($direction: column, $gap: 16px) {
@@ -37,4 +37,12 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+@mixin line-ellipsis($line: 1) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  -webkit-box-orient: vertical;
+  display: -webkit-box;
+  -webkit-line-clamp: $line;
 }

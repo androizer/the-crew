@@ -41,7 +41,7 @@ export default function MyBookings() {
               .then(currentOrder => {
                 const cartItems = JSON.parse(CartSessionService.getCartItems());
                 dispatch(
-                  subOrderThunks.saveSubOrders({
+                  subOrderThunks.createManySubOrders({
                     payload: generateSubOrdersToBeSaved(cartItems, currentOrder),
                   }),
                 ).then(() => {
@@ -60,30 +60,25 @@ export default function MyBookings() {
 
   useEffect(() => {
     // get all sub-orders
-    if (currentUser.role.includes(Role.PROFESSIONAL)) {
-      dispatch(
-        subOrderThunks.getSubOrders({
-          join: [
-            { field: 'service' },
-            { field: 'rating' },
-            { field: 'order' },
-            { field: 'order.consumer' },
-          ],
-          search: {
-            'service.providerId': currentUser.id,
+    dispatch(
+      subOrderThunks.getSubOrders({
+        join: [
+          { field: 'service' },
+          { field: 'rating' },
+          { field: 'order' },
+          {
+            ...(currentUser.role.includes(Role.PROFESSIONAL)
+              ? { field: 'order.consumer' }
+              : { field: 'service.provider' }),
           },
-        }),
-      );
-    } else if (currentUser.role.includes(Role.USER)) {
-      dispatch(
-        orderThunks.getOrders({
-          join: [{ field: 'consumer' }, { field: 'subOrders' }],
-          search: {
-            consumerId: currentUser.id,
-          },
-        }),
-      );
-    }
+        ],
+        search: {
+          ...(currentUser.role.includes(Role.PROFESSIONAL)
+            ? { 'service.providerId': currentUser.id }
+            : { 'order.consumerId': currentUser.id }),
+        },
+      }),
+    );
   }, []);
 
   return (
@@ -121,7 +116,7 @@ export default function MyBookings() {
         ) : subOrders.length ? (
           onGoing ? (
             subOrders
-              .filter(_subOrder => _subOrder.status === OrderStatus.SCHEDULED)
+              .filter(_subOrder => [OrderStatus.SCHEDULED].includes(_subOrder.status))
               .map((_subOrder, index) => {
                 return (
                   <Grid item key={index}>
@@ -131,7 +126,9 @@ export default function MyBookings() {
               })
           ) : (
             subOrders
-              .filter(_subOrder => _subOrder.status !== OrderStatus.SCHEDULED)
+              .filter(_subOrder =>
+                [OrderStatus.CANCELLED, OrderStatus.COMPLETED].includes(_subOrder.status),
+              )
               .map((_subOrder, index) => {
                 return (
                   <Grid item key={index}>

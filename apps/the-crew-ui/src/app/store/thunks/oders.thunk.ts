@@ -33,6 +33,9 @@ const getOrders = createAsyncThunk(
     } catch (error) {
       dispatch(orderActions.setLoading(false));
       dispatch(subOrderActions.setLoading(false));
+      if (error.isAxiosError) {
+        throw rejectWithValue({ ...error.response.data, status: error.response.status });
+      }
       throw rejectWithValue(error);
     }
   },

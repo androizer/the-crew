@@ -1,11 +1,15 @@
 import { createEntityAdapter, createSlice } from '@reduxjs/toolkit';
 import { Review } from '@the-crew/common';
 
+import type { PayloadAction } from '@reduxjs/toolkit';
+
 const reviewAdapter = createEntityAdapter<Review>();
 
 const reviewSlice = createSlice({
   name: 'reviews',
-  initialState: reviewAdapter.getInitialState(),
+  initialState: reviewAdapter.getInitialState({
+    loading: false,
+  }),
   reducers: {
     addReviews: reviewAdapter.setAll,
     clearReviews: reviewAdapter.removeAll,
@@ -13,6 +17,9 @@ const reviewSlice = createSlice({
     updateReview: reviewAdapter.updateOne,
     replaceReview: reviewAdapter.setOne,
     removeReview: reviewAdapter.removeOne,
+    setLoading: (state, action: PayloadAction<boolean>) => {
+      state.loading = action.payload;
+    },
   },
 });
 

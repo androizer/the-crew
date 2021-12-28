@@ -1,23 +1,15 @@
-import { Close, StarRate } from '@mui/icons-material';
-import {
-  Avatar,
-  Button,
-  Divider,
-  Grid,
-  IconButton,
-  OutlinedInput,
-  Tooltip,
-  Typography,
-} from '@mui/material';
-import { SubOrder } from '@the-crew/common';
+import { StarRate } from '@mui/icons-material';
+import { Avatar, Button, Divider, Grid, OutlinedInput, Tooltip, Typography } from '@mui/material';
+import { Review, SubOrder, User } from '@the-crew/common';
 import { OrderStatus, OrderStatusColour, Role } from '@the-crew/common/enums';
+import { isObject } from 'class-validator';
 import { Formik } from 'formik';
+import { useSnackbar } from 'notistack';
 import { useEffect, useState } from 'react';
 import Flippy, { BackSide, FrontSide } from 'react-flippy';
-import { useDispatch } from 'react-redux';
+import { number, object, string } from 'yup';
 
-import { useAppSelector } from '../../../store';
-import { orderSelectors } from '../../../store/slices';
+import { useAppDispatch, useAppSelector } from '../../../store';
 import { reviewThunks, subOrderThunks } from '../../../store/thunks';
 import HoverRating from '../RatingBar/RatingBar';
 import style from './BookingCard.module.scss';
@@ -27,22 +19,21 @@ interface IBookingCardProps {
 }
 
 export const BookingCard: React.FC<IBookingCardProps> = ({ subOrder }) => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const currentUser = useAppSelector(state => state.auth.user);
-  const orders = useAppSelector(state => orderSelectors.selectAll(state.order));
   const [isFlipped, setFlipped] = useState(false);
-  const [customer, setCustomer] = useState(null);
+  const [user, setUser] = useState<User>(null);
+  const { enqueueSnackbar } = useSnackbar();
 
   useEffect(() => {
+    const { order, service } = subOrder;
     if (currentUser.role.includes(Role.PROFESSIONAL)) {
-      const { order } = subOrder;
       if (order) {
-        setCustomer(order.consumer);
+        setUser(order.consumer);
       }
-    } else if (currentUser.role.includes(Role.USER)) {
-      const order = orders.find(order => order.subOrderIds.includes(subOrder.id));
-      if (order) {
-        setCustomer(order.consumer);
+    } else {
+      if (service) {
+        setUser(service.provider);
       }
     }
   }, []);
@@ -52,10 +43,12 @@ export const BookingCard: React.FC<IBookingCardProps> = ({ subOrder }) => {
       <FrontSide>
         <div className={style.bookingSummary}>
           <div className={style.serviceNameAndStatus}>
-            <Typography variant="subtitle1" className={style.serviceName}>
-              {subOrder.service?.title}
-            </Typography>
-            <BookingStatus status={subOrder.status} message={'Request ' + subOrder.status} />
+            <Tooltip title={subOrder.service.title}>
+              <Typography variant="subtitle1" className={style.serviceName}>
+                {subOrder.service.title}
+              </Typography>
+            </Tooltip>
+            <BookingStatus status={subOrder.status} message={`Request ${subOrder.status}`} />
           </div>
           <Typography>
             {new Date(subOrder.createdOn).toJSON().slice(0, 10).replace(/-/g, '/')}
@@ -67,46 +60,52 @@ export const BookingCard: React.FC<IBookingCardProps> = ({ subOrder }) => {
             <Avatar
               variant="circular"
               sx={{ height: '120px', width: '120px' }}
-              alt=""
+              alt="user-avatar"
               src="https://images.unsplash.com/photo-1621905252507-b35492cc74b4?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTF8fGhhbmR5bWFufGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=500&q=60"
             />
-          </div>
-          <div className={style.bookingReviewDetails}>
-            <Typography variant="subtitle1" color="textPrimary">
-              Name:{' '}
-            </Typography>
-            <Typography variant="subtitle1" color="textSecondary">
-              {customer?.fullName}
-            </Typography>
-          </div>
-          {currentUser.role.includes(Role.PROFESSIONAL) && (
-            <>
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'start',
+              }}
+            >
               <div className={style.bookingReviewDetails}>
                 <Typography variant="subtitle1" color="textPrimary">
-                  You rated:{' '}
-                </Typography>
-                <Typography variant="body2" style={{ color: 'green', fontWeight: 600 }}>
-                  <StarRate
-                    fontSize="medium"
-                    style={{
-                      display: 'inline-block',
-                      position: 'relative',
-                      marginRight: '1px',
-                      color: 'green',
-                    }}
-                  />
-                  {subOrder.rating?.rating}
-                </Typography>
-              </div>
-              <div className={style.bookingReviewDetails}>
-                <Typography variant="subtitle1" color="textPrimary">
-                  Comments:
+                  Name:
                 </Typography>
                 <Typography variant="subtitle1" color="textSecondary">
-                  {subOrder.rating?.comment}
+                  {user?.fullName}
                 </Typography>
               </div>
-            </>
+              <div className={style.bookingReviewDetails}>
+                <Typography variant="subtitle1" color="textPrimary">
+                  Phone:
+                </Typography>
+                <Typography variant="subtitle1" color="textSecondary">
+                  {user?.phone}
+                </Typography>
+              </div>
+              {subOrder.rating && (
+                <div className={style.bookingReviewDetails}>
+                  <Typography variant="subtitle1" color="textPrimary">
+                    {currentUser.role.includes(Role.PROFESSIONAL) ? 'Your rating:' : 'You rated:'}
+                  </Typography>
+                  <span className={style.ratingWrapper}>
+                    <StarRate fontSize="medium" />
+                    <Typography variant="body1">{subOrder.rating?.rating}</Typography>
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+          {subOrder.rating && (
+            <div className={style.bookingReviewDetails}>
+              <Typography variant="subtitle1" color="textSecondary" className={style.reviewComment}>
+                {subOrder.rating?.comment}
+              </Typography>
+            </div>
           )}
         </div>
         <div className={style.rateNow}>
@@ -116,14 +115,21 @@ export const BookingCard: React.FC<IBookingCardProps> = ({ subOrder }) => {
               color="primary"
               disabled={subOrder.status === OrderStatus.COMPLETED}
               onClick={() => {
-                //let temp = new SubOrder();
-                const temp = { ...subOrder };
-                temp.status = OrderStatus.COMPLETED;
                 dispatch(
-                  subOrderThunks.saveSubOrders({
-                    payload: { bulk: [temp] },
+                  subOrderThunks.updateSubOrder({
+                    payload: {
+                      id: subOrder.id,
+                      changes: {
+                        status: OrderStatus.COMPLETED,
+                      },
+                    },
                   }),
-                );
+                )
+                  .unwrap()
+                  .then(() => enqueueSnackbar('Order marked as Completed', { variant: 'success' }))
+                  .catch(error =>
+                    enqueueSnackbar(error.message ?? 'Something went wrong!', { variant: 'error' }),
+                  );
               }}
             >
               Changes status to completed
@@ -132,7 +138,7 @@ export const BookingCard: React.FC<IBookingCardProps> = ({ subOrder }) => {
             <Button
               variant="contained"
               color="primary"
-              disabled={subOrder.status !== OrderStatus.COMPLETED}
+              disabled={isObject(subOrder.rating) || subOrder.status !== OrderStatus.COMPLETED}
               onClick={() => {
                 setFlipped(!isFlipped);
               }}
@@ -142,36 +148,52 @@ export const BookingCard: React.FC<IBookingCardProps> = ({ subOrder }) => {
           )}
         </div>
       </FrontSide>
-      <BackSide className={style.bookingServiceCard}>
-        <Grid container flexDirection="column" style={{ height: '100%' }}>
-          <Grid item alignSelf="flex-end">
-            <Tooltip title="Close">
-              <IconButton onClick={() => setFlipped(!isFlipped)}>
-                <Close fontSize="medium" />
-              </IconButton>
-            </Tooltip>
-          </Grid>
+      <BackSide>
+        <Grid container flexDirection="column" flexWrap="nowrap" style={{ height: '100%' }}>
           <Grid item flex={1}>
             <Formik
               initialValues={{
-                rating: subOrder?.rating?.rating,
-                comment: subOrder?.rating?.comment,
+                rating: 1,
+                comment: '',
               }}
+              validationSchema={reviewSchema}
               onSubmit={values => {
                 dispatch(
                   reviewThunks.createReview({
                     payload: {
-                      comment: values.comment,
                       rating: values.rating,
-                      reviewerId: currentUser?.id,
+                      comment: values.comment,
+                      reviewerId: currentUser.id,
                       serviceId: subOrder.serviceId,
                     },
                   }),
-                );
+                )
+                  .unwrap()
+                  .then((review: Review) => {
+                    dispatch(
+                      subOrderThunks.updateSubOrder({
+                        payload: {
+                          id: subOrder.id,
+                          changes: {
+                            rating: review,
+                          },
+                        },
+                        query: {
+                          join: [{ field: 'rating' }],
+                        },
+                      }),
+                    )
+                      .unwrap()
+                      .catch(error => {
+                        enqueueSnackbar(error.message ?? 'Something went wrong!', {
+                          variant: 'error',
+                        });
+                      });
+                  });
                 setFlipped(!isFlipped);
               }}
             >
-              {({ values, handleChange, handleBlur, handleSubmit }) => (
+              {({ values, handleChange, handleBlur, handleSubmit, resetForm }) => (
                 <form
                   className={style.rating}
                   noValidate
@@ -182,6 +204,7 @@ export const BookingCard: React.FC<IBookingCardProps> = ({ subOrder }) => {
                 >
                   <HoverRating
                     name="rating"
+                    value={values.rating}
                     onChange={(val: number) => {
                       values.rating = val;
                     }}
@@ -189,8 +212,7 @@ export const BookingCard: React.FC<IBookingCardProps> = ({ subOrder }) => {
                   <OutlinedInput
                     fullWidth
                     multiline
-                    rows={5}
-                    maxRows={5}
+                    rows={3}
                     name="comment"
                     placeholder="Add a comment"
                     autoFocus={true}
@@ -199,9 +221,22 @@ export const BookingCard: React.FC<IBookingCardProps> = ({ subOrder }) => {
                     onChange={handleChange}
                     onBlur={handleBlur}
                   />
-                  <Button variant="contained" type="submit" color="primary">
-                    Save
-                  </Button>
+                  <Grid container justifyContent="center" gap={2}>
+                    <Button
+                      type="button"
+                      variant="contained"
+                      color="warning"
+                      onClick={() => {
+                        resetForm();
+                        setFlipped(!isFlipped);
+                      }}
+                    >
+                      Discard
+                    </Button>
+                    <Button variant="contained" type="submit" color="primary">
+                      Save
+                    </Button>
+                  </Grid>
                 </form>
               )}
             </Formik>
@@ -211,6 +246,11 @@ export const BookingCard: React.FC<IBookingCardProps> = ({ subOrder }) => {
     </Flippy>
   );
 };
+
+const reviewSchema = object().shape({
+  rating: number().required(),
+  comment: string(),
+});
 
 interface StatusSummary {
   status: string;

@@ -1,6 +1,6 @@
 import { CreateQueryParams } from '@nestjsx/crud-request';
-import { createAsyncThunk } from '@reduxjs/toolkit';
-import { uuid } from '@the-crew/common';
+import { createAsyncThunk, Update } from '@reduxjs/toolkit';
+import { SubOrder, uuid } from '@the-crew/common';
 import { batch } from 'react-redux';
 
 import { subOrderApi } from '../../services';
@@ -21,6 +21,9 @@ const getSubOrders = createAsyncThunk(
       return fulfillWithValue(data as any);
     } catch (error) {
       dispatch(subOrderActions.setLoading(false));
+      if (error.isAxiosError) {
+        throw rejectWithValue({ ...error.response.data, status: error.response.status });
+      }
       throw rejectWithValue(error);
     }
   },
@@ -35,7 +38,7 @@ const getSubOrder = createAsyncThunk(
   },
 );
 
-const saveSubOrders = createAsyncThunk(
+const createManySubOrders = createAsyncThunk(
   'sub-orders/CreateMany',
   async (args: { payload; query?: CreateQueryParams }, { dispatch }) => {
     const { payload, query } = args;
@@ -44,10 +47,36 @@ const saveSubOrders = createAsyncThunk(
   },
 );
 
-export { getSubOrders, getSubOrder, saveSubOrders };
+const updateSubOrder = createAsyncThunk(
+  'sub-orders/UpdateOne',
+  async (
+    args: { payload: Update<SubOrder>; query?: CreateQueryParams },
+    { dispatch, fulfillWithValue, rejectWithValue },
+  ) => {
+    try {
+      const { payload, query } = args;
+      dispatch(subOrderActions.setLoading(true));
+      const { data } = await subOrderApi.updateOne(payload.id, payload.changes, query);
+      batch(() => {
+        dispatch(subOrderActions.updateSubOrder({ id: payload.id, changes: data }));
+        dispatch(subOrderActions.setLoading(false));
+      });
+      return fulfillWithValue(data as any);
+    } catch (error) {
+      dispatch(subOrderActions.setLoading(false));
+      if (error.isAxiosError) {
+        throw rejectWithValue({ ...error.response.data, status: error.response.status });
+      }
+      throw rejectWithValue(error);
+    }
+  },
+);
+
+export { getSubOrders, getSubOrder, createManySubOrders as saveSubOrders };
 
 export const subOrderThunks = {
   getSubOrders,
   getSubOrder,
-  saveSubOrders,
+  createManySubOrders,
+  updateSubOrder,
 };

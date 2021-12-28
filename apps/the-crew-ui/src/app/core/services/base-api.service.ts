@@ -1,8 +1,10 @@
 import { CreateQueryParams } from '@nestjsx/crud-request';
-import { AnyObject, uuid } from '@the-crew/common';
 import { AxiosInstance } from 'axios';
 
+import type { AnyObject } from '@the-crew/common';
 import type { GetManyDefaultResponse } from '@nestjsx/crud';
+import type { EntityId } from '@reduxjs/toolkit';
+
 type HttpBaseConfig = {
   instance: AxiosInstance;
   basePath: string;
@@ -22,7 +24,7 @@ export class BaseHttpAPI<T> {
     });
   }
 
-  getOne<R = T>(id: uuid, params: CreateQueryParams = {}) {
+  getOne<R = T>(id: EntityId, params: CreateQueryParams = {}) {
     const url = `${this.basePath}/${id}`;
     return this.instance.get<R>(url, {
       params,
@@ -46,21 +48,25 @@ export class BaseHttpAPI<T> {
     });
   }
 
-  updateOne<R = T>(id: uuid, payload: Partial<Omit<T, 'id'>>, params: CreateQueryParams = {}) {
+  updateOne<R = Partial<T>>(
+    id: EntityId,
+    payload: Partial<Omit<T, 'id'>>,
+    params: CreateQueryParams = {},
+  ) {
     const url = `${this.basePath}/${id}`;
     return this.instance.patch<R>(url, payload, {
       params,
     });
   }
 
-  replaceOne<R = T>(id: uuid, payload: Omit<T, 'id'>, params: CreateQueryParams = {}) {
+  replaceOne<R = T>(id: EntityId, payload: Omit<T, 'id'>, params: CreateQueryParams = {}) {
     const url = `${this.basePath}/${id}`;
     return this.instance.put<R>(url, payload, {
       params,
     });
   }
 
-  deleteOne<R = T>(id: uuid) {
+  deleteOne<R = T>(id: EntityId) {
     const url = `${this.basePath}/${id}`;
     return this.instance.delete<void | R>(url);
   }

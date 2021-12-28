@@ -1,7 +1,7 @@
 import { Star } from '@mui/icons-material';
 import { Box, Rating } from '@mui/material';
 import { makeStyles } from '@mui/styles';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import style from './RatingBar.module.scss';
 
@@ -27,13 +27,18 @@ const useStyles = makeStyles({
 
 interface RatingProps {
   name: string;
+  value: number;
   onChange: (val: number) => void;
 }
 
 export default function HoverRating(props: RatingProps) {
-  const [value, setValue] = useState(1);
+  const [value, setValue] = useState<number>(props.value);
   const [hover, setHover] = useState(-1);
   const classes = useStyles();
+
+  useEffect(() => {
+    setValue(props.value);
+  }, [props.value]);
 
   return (
     <div className={style.ratingBarRoot}>

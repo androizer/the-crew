@@ -12,7 +12,7 @@ interface ISavedAddress {
 const SavedAddress: React.FC<ISavedAddress> = ({ address }) => {
   const currentUser = useAppSelector(state => state.auth.user);
   return (
-    <Paper variant="outlined">
+    <Paper variant="outlined" style={{ marginBottom: '16px' }}>
       <Grid container padding="16px">
         <Grid item>
           <Radio value={address.id} />

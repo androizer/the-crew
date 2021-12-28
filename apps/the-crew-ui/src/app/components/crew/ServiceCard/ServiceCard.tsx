@@ -1,5 +1,6 @@
 import { StarRate } from '@mui/icons-material';
 import {
+  Box,
   Button,
   Card,
   CardActions,
@@ -11,8 +12,7 @@ import {
   Typography,
 } from '@mui/material';
 import { ServiceRequest } from '@the-crew/common';
-import { Role } from '@the-crew/common/enums';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback } from 'react';
 
 import { useAppDispatch, useAppSelector } from '../../../store';
 import { authSelector, cartActions, cartSelectors } from '../../../store/slices';
@@ -30,7 +30,6 @@ interface IServiceCard {
 export const ServiceCard: React.FC<IServiceCard> = props => {
   const dispatch = useAppDispatch();
   const cartItem = useAppSelector(state => cartSelectors.selectById(state.cart, props.service.id));
-  const authState = useAppSelector(authSelector);
 
   const onServiceAdd = (count: number) => {
     if (count) {
@@ -73,65 +72,39 @@ export const ServiceCard: React.FC<IServiceCard> = props => {
               title={props.service.title}
             />
           </Grid>
-          <Grid item xs={8}>
-            <Grid container spacing={3}>
-              <Grid item xs={6}>
-                <Typography variant="h6">{props.service.title}</Typography>
-                <Grid
-                  container
-                  item
-                  justifyContent="start"
-                  alignItems="center"
-                  spacing={0.5}
-                  style={{
-                    color: 'green',
-                    fontWeight: 600,
-                  }}
-                >
-                  <Grid item>
-                    <StarRate fontSize="medium" />
-                  </Grid>
-                  <Grid item>
-                    <span>{getRatings()}</span>
-                  </Grid>
+          <Grid container item xs flexDirection="column" spacing={2} position="relative">
+            <Grid container item xs flexDirection="column">
+              <Typography variant="h6">{props.service.title}</Typography>
+              <Grid
+                container
+                item
+                justifyContent="start"
+                alignItems="center"
+                spacing={0.5}
+                style={{
+                  color: 'green',
+                  fontWeight: 600,
+                }}
+              >
+                <Grid item>
+                  <StarRate fontSize="medium" />
                 </Grid>
-                <Typography variant="body2" color="textSecondary" component="p">
-                  {props.service.reviewIds.length} ratings
-                </Typography>
-                <Typography variant="subtitle1">₹ {props.service.price}</Typography>
+                <Grid item>
+                  <span>{getRatings()}</span>
+                </Grid>
               </Grid>
-              {authState.user ? (
-                authState.user.role.includes(Role.PROFESSIONAL) ? null : (
-                  <Grid
-                    item
-                    xs={6}
-                    justifyContent="center"
-                    alignItems="flex-start"
-                    style={{ display: 'flex' }}
-                  >
-                    <AddButton
-                      count={cartItem?.quantity ?? 0}
-                      onAdd={onServiceAdd}
-                      onRemove={onServiceRemove}
-                    />
-                  </Grid>
-                )
-              ) : (
-                <Grid
-                  item
-                  xs={6}
-                  justifyContent="center"
-                  alignItems="flex-start"
-                  style={{ display: 'flex' }}
-                >
-                  <AddButton
-                    count={cartItem?.quantity ?? 0}
-                    onAdd={onServiceAdd}
-                    onRemove={onServiceRemove}
-                  />
-                </Grid>
-              )}
+              <Typography variant="body2" color="textSecondary" component="p">
+                {props.service.reviewIds.length} ratings
+              </Typography>
+              <Typography variant="subtitle1">₹ {props.service.price}</Typography>
             </Grid>
+            <Box sx={{ position: 'absolute', right: '8px', bottom: '0' }}>
+              <AddButton
+                count={cartItem?.quantity ?? 0}
+                onAdd={onServiceAdd}
+                onRemove={onServiceRemove}
+              />
+            </Box>
           </Grid>
         </Grid>
         <CardContent style={{ padding: 0 }}>

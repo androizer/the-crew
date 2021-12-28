@@ -12,7 +12,8 @@ import {
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { RequestQueryBuilder } from '@nestjsx/crud-request';
-import { RegisterUserDTO, User } from '@the-crew/common';
+import { User } from '@the-crew/common';
+import { RegisterUserDTO } from '@the-crew/common/dto';
 import { Request, Response } from 'express';
 
 import { CurrentUser } from '../../core/decorators';
