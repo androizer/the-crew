@@ -3,7 +3,6 @@ import { withRouter } from 'react-router';
 
 import { TokenService } from '../../../services';
 import { useAppDispatch } from '../../../store';
-import { loadTokensAtStartup } from '../../../store/slices';
 import { AuthThunks } from '../../../store/thunks';
 import { OverlayLoading } from '../../generic';
 
@@ -15,7 +14,6 @@ const Startup = withRouter(props => {
     const accessToken = TokenService.getAccessToken();
     const refreshToken = TokenService.getRefreshToken();
     if (accessToken || refreshToken) {
-      dispatch(loadTokensAtStartup({ accessToken, refreshToken }));
       setTimeout(() => {
         setLoading(true);
         dispatch(AuthThunks.whoAmI())

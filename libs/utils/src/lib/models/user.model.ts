@@ -3,8 +3,11 @@ import {
   IsArray,
   IsDate,
   IsEmail,
+  IsEmpty,
   IsEnum,
   IsNotEmpty,
+  IsNotEmptyObject,
+  IsObject,
   IsOptional,
   IsPhoneNumber,
   IsString,
@@ -13,13 +16,13 @@ import {
   ValidateNested,
 } from 'class-validator';
 
-import { UserAddress, ServiceRequest, Review } from '.';
+import { Review, ServiceRequest, UserAddress } from '.';
 import { Role } from '../enums';
-import type { IUser, uuid } from '../types';
+
+import type { IUser, UserMeta, uuid } from '../types';
 
 export class User implements IUser {
   @IsUUID()
-  @IsOptional()
   id: uuid;
 
   @IsString()
@@ -42,7 +45,7 @@ export class User implements IUser {
   password: string;
 
   @IsPhoneNumber()
-  phone: string;
+  phone: string | null;
 
   @IsArray()
   @IsEnum(Role, { each: true })
@@ -71,4 +74,8 @@ export class User implements IUser {
   @ValidateNested()
   @Type(() => Review)
   ratings: Review[];
+
+  @IsNotEmptyObject()
+  @IsObject()
+  meta: UserMeta;
 }

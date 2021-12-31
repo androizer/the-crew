@@ -18,7 +18,7 @@ import { Request, Response } from 'express';
 
 import { CurrentUser } from '../../core/decorators';
 import { JwtAuthGuard, LocalAuthGuard } from '../guards';
-import { RefreshTokenDTO } from '../models/dto';
+import { LoginGoogleUserDTO, RefreshTokenDTO } from '../models/dto';
 import { AuthService } from '../services';
 
 @ApiTags('Authentication/Authorization')
@@ -36,6 +36,11 @@ export class AuthController {
   @Post('login')
   async login(@Req() req: Request) {
     return this.authService.login(req.user);
+  }
+
+  @Post('login/google')
+  async googleLogin(@Body(new ValidationPipe({ whitelist: true })) payload: LoginGoogleUserDTO) {
+    return this.authService.loginGoogleOAuth(payload);
   }
 
   @UseGuards(JwtAuthGuard)

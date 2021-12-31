@@ -14,9 +14,15 @@
 .root-paper {
   @include mixin.fxLayoutAlign(center, center);
   @include mixin.fxLayout(column);
-  height: 350px;
+  height: 400px;
   width: 300px;
   overflow: hidden;
   padding: 16px;
   margin: auto 32px auto 0;
+}
+
+.google-login-btn {
+  display: flex;
+  justify-content: center;
+  width: 100%;
 }

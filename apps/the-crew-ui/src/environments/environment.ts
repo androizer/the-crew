@@ -4,4 +4,5 @@
 export const environment = {
   production: false,
   apiUrl: process.env.NX_API_URL,
+  googleClientId: process.env.NX_GOOGLE_AUTH_CLIENT_ID,
 };

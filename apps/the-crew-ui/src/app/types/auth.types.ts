@@ -1,12 +1,12 @@
 export type LoginResponse = {
   accessToken: string;
   refreshToken: string;
-  expiresAt?: Date;
+  expiresAt: number;
 };
-
-export type RefreshTokenResponse = LoginResponse;
 
 export type AuthCreds = {
   email: string;
   password: string;
 };
+
+export type RefreshTokenResponse = LoginResponse;

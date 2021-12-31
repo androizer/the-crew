@@ -1,3 +1,7 @@
+import type { LoginResponse } from '../../types';
+
+type TokenPayload = LoginResponse;
+
 enum AuthKeys {
   ACCESS_TOKEN = 'access_token',
   REFRESH_TOKEN = 'refresh_token',
@@ -44,6 +48,20 @@ function getExpireTimestamp(): number {
   return parseInt(localStorage.getItem(AuthKeys.EXPIRES_AT));
 }
 
+function setTokenPayload(payload: TokenPayload): void {
+  setAccessToken(payload.accessToken);
+  setRefreshToken(payload.refreshToken);
+  setExpireTimestamp(payload.expiresAt);
+}
+
+function getTokenPayload(): TokenPayload {
+  return {
+    accessToken: getAccessToken(),
+    refreshToken: getRefreshToken(),
+    expiresAt: getExpireTimestamp(),
+  };
+}
+
 export {
   getAccessToken,
   setAccessToken,
@@ -51,6 +69,8 @@ export {
   setRefreshToken,
   setExpireTimestamp,
   getExpireTimestamp,
+  setTokenPayload,
+  getTokenPayload,
 };
 
 export const TokenService = {
@@ -60,4 +80,6 @@ export const TokenService = {
   setRefreshToken,
   setExpireTimestamp,
   getExpireTimestamp,
+  setTokenPayload,
+  getTokenPayload,
 };

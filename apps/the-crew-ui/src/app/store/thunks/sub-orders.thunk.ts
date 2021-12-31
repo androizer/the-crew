@@ -40,7 +40,10 @@ const getSubOrder = createAsyncThunk(
 
 const createManySubOrders = createAsyncThunk(
   'sub-orders/CreateMany',
-  async (args: { payload; query?: CreateQueryParams }, { dispatch }) => {
+  async (
+    args: { payload: { bulk: Partial<SubOrder>[] }; query?: CreateQueryParams },
+    { dispatch },
+  ) => {
     const { payload, query } = args;
     const response = await subOrderApi.createMany(payload, query);
     dispatch(subOrderActions.addSubOrders(response.data.data));

@@ -1,8 +1,9 @@
 import { CreateQueryParams, RequestQueryBuilder } from '@nestjsx/crud-request';
-import { User } from '@the-crew/common';
 
 import { axiosInstance } from '../../core/services';
-import { RegisterProDTO } from '../../types';
+
+import type { LoginResponse, RefreshTokenResponse, RegisterProDTO } from '../../types';
+import type { LoginGoogleUserDTO, User } from '@the-crew/common';
 
 const basePath = `/auth`;
 
@@ -10,7 +11,16 @@ const instance = axiosInstance;
 
 function login(creds: { email: string; password: string }) {
   const url = `${basePath}/login`;
-  return instance.post(url, creds, {
+  return instance.post<LoginResponse>(url, creds, {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+}
+
+function loginViaGoogle(payload: LoginGoogleUserDTO) {
+  const url = `${basePath}/login/google`;
+  return instance.post<LoginResponse>(url, payload, {
     headers: {
       'Content-Type': 'application/json',
     },
@@ -34,7 +44,7 @@ function whoAmI(query: CreateQueryParams = {}) {
 
 function refreshToken(refreshToken: string) {
   const url = `${basePath}/token/refresh`;
-  return instance.post(
+  return instance.post<RefreshTokenResponse>(
     url,
     { refreshToken },
     {
@@ -52,10 +62,11 @@ function logout(): Promise<void> {
 
 export const authApi = {
   login,
-  register,
-  whoAmI,
-  refreshToken,
+  loginViaGoogle,
   logout,
+  register,
+  refreshToken,
+  whoAmI,
 };
 
 export { login, logout, register, whoAmI, refreshToken };

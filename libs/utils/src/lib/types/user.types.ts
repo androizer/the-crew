@@ -1,7 +1,11 @@
-import { IServiceRequest, IUserAddress } from '.';
 import { Role } from '../enums';
-import { IOwnerTimestamp } from './ownership-timestamp.type';
-import { uuid } from './util.types';
+
+import type { IOwnerTimestamp, IServiceRequest, IUserAddress, uuid } from '.';
+
+export type UserMeta = {
+  googleId: string;
+  imgUrl: string;
+};
 
 export interface IUser extends IOwnerTimestamp {
   id: uuid;
@@ -9,10 +13,10 @@ export interface IUser extends IOwnerTimestamp {
   lastName: string;
   fullName: string;
   email: string;
-  password: string;
-  phone: string;
+  password: string | null;
+  phone: string | null;
   role: Role[];
   addresses: IUserAddress[];
   services: IServiceRequest[];
-  //ratings: IRating[];
+  meta: Partial<UserMeta>;
 }

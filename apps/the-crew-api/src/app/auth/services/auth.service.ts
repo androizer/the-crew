@@ -1,16 +1,23 @@
-import { ConflictException, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Inject,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { JwtService, JwtSignOptions } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AnyObject, User } from '@the-crew/common';
 import { compare } from 'bcrypt';
 import { plainToClass } from 'class-transformer';
+import { isNotEmptyObject } from 'class-validator';
 import ms from 'ms';
 import { Repository } from 'typeorm';
 
 import AuthConfig from '../../../configs/auth.config';
 import { UserService } from '../../user/services';
-import { UserToken } from '../models/dto';
+import { LoginGoogleUserDTO, UserToken } from '../models/dto';
 import { RefreshTokenEntity } from '../models/entities';
 
 @Injectable()
@@ -34,6 +41,9 @@ export class AuthService {
       where: { email },
     });
     if (user) {
+      if (user.meta.googleId) {
+        throw new UnauthorizedException('Email already exists via Google OAuth');
+      }
       const matched = await compare(pwd, user.password);
       if (matched) {
         return plainToClass(UserToken, user, { excludeExtraneousValues: true });
@@ -48,6 +58,49 @@ export class AuthService {
    * @returns Access Token and Refresh Token
    */
   public async login(user: Express.User) {
+    const { accessTokenExp } = this.authConfig;
+    return {
+      accessToken: this.generateAccessToken(user as UserToken),
+      refreshToken: await this.generateRefreshToken(user as UserToken),
+      expiresAt: new Date(new Date().getTime() + ms(accessTokenExp)).getTime(),
+    };
+  }
+
+  /**
+   * Generate accessToke and refreshToken for google login
+   * @param user LoginGoogleUserDTO
+   * @returns Access Token and Refresh Token
+   */
+  public async loginGoogleOAuth(userDTO: LoginGoogleUserDTO) {
+    if (!userDTO.meta.googleId) {
+      throw new BadRequestException('Google ID is missing!');
+    }
+    // check if the user exists or not
+    let user = await this.userService.findOne({
+      where: { email: userDTO.email },
+      select: ['meta'],
+    });
+    // if null/undefined returned, then this will add the user and generate tokens and return
+    if (!user) {
+      user = this.userService.userRepo.create(userDTO);
+    }
+    // if user exists, then:
+    else {
+      // if googleId in meta object is missing, return error 401 (user already registered with same email but via local strategy)
+      if (!isNotEmptyObject(user.meta)) {
+        throw new UnauthorizedException();
+      }
+      // if googleId in meta object is found, update the details and generate tokens and return
+      const { meta } = user;
+      user = this.userService.userRepo.create({
+        ...userDTO,
+        meta: {
+          ...meta,
+          ...userDTO.meta,
+        },
+      });
+    }
+    await this.userService.userRepo.upsert(user, ['email']);
     const { accessTokenExp } = this.authConfig;
     return {
       accessToken: this.generateAccessToken(user as UserToken),

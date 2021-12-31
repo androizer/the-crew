@@ -1,4 +1,4 @@
-import { IUser, Role, ServiceRequest, User, UserAddress, uuid } from '@the-crew/common';
+import { Role, ServiceRequest, User, UserAddress } from '@the-crew/common';
 import { hashSync } from 'bcrypt';
 import { Exclude } from 'class-transformer';
 import {
@@ -14,6 +14,7 @@ import { OwnerTimestampEntity } from '../../../core/models/entities';
 import { ServiceRequestEntity } from '../../../service-request/models/entities/';
 import { UserAddressEntity } from './user-address.entity';
 
+import type { UserMeta, uuid, IUser } from '@the-crew/common';
 @Entity({
   name: 'users',
 })
@@ -35,14 +36,18 @@ export class UserEntity extends OwnerTimestampEntity implements IUser {
   })
   email: string;
 
-  @Column()
+  @Column({
+    type: 'text',
+    nullable: true,
+  })
   @Exclude()
-  password: string;
+  password: string | null;
 
   @Column({
     unique: true,
+    nullable: true,
   })
-  phone: string;
+  phone: string | null;
 
   @Column({
     type: 'enum',
@@ -50,6 +55,13 @@ export class UserEntity extends OwnerTimestampEntity implements IUser {
     array: true,
   })
   role: Role[];
+
+  @Column({
+    type: 'json',
+    nullable: true,
+    default: {},
+  })
+  meta: UserMeta;
 
   @OneToMany(() => UserAddressEntity, address => address.user)
   addresses: UserAddress[];
@@ -66,7 +78,8 @@ export class UserEntity extends OwnerTimestampEntity implements IUser {
   @BeforeInsert()
   performPrerequisite() {
     this.fullName = `${this.firstName} ${this.lastName}`;
-    //TODO: @androizer Hash the password if in plaintext
-    this.password = hashSync(this.password, 10);
+    if (this.password) {
+      this.password = hashSync(this.password, 10);
+    }
   }
 }

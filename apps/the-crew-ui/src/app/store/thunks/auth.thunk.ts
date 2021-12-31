@@ -1,36 +1,73 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { User } from '@the-crew/common';
+import { batch } from 'react-redux';
 
 import SnackbarUtils from '../../core/services/snackbar-config.service';
 import { authApi, TokenService } from '../../services';
-import { AuthCreds } from '../../types';
+import { authActions } from '../slices';
 import { userAddressThunks } from './user-address.thunk';
+
+import type { AuthCreds, LoginResponse } from '../../types';
+import type { AnyObject, LoginGoogleUserDTO, User } from '@the-crew/common';
 
 /**
  * Login Request
  */
-const loginAndFetchTokens = createAsyncThunk(
-  'auth/fetchTokens',
-  async (creds: AuthCreds, { dispatch, rejectWithValue }) => {
-    try {
-      const response = await authApi.login(creds);
-      TokenService.setAccessToken(response.data.accessToken);
-      TokenService.setRefreshToken(response.data.refreshToken);
-      TokenService.setExpireTimestamp(response.data.expiresAt);
-      setTimeout(() => {
-        dispatch(whoAmI())
-          .unwrap()
-          .then((user: User) => {
-            SnackbarUtils.success(`Welcome ${user.fullName}`);
+const login = createAsyncThunk(
+  'auth/login',
+  async (creds: AuthCreds, { dispatch, fulfillWithValue, rejectWithValue }) => {
+    return new Promise<LoginResponse>((resolve, reject) => {
+      dispatch(authActions.setLoading(true));
+      authApi
+        .login(creds)
+        .then(({ data }) => {
+          TokenService.setTokenPayload(data);
+          batch(() => {
+            dispatch(authActions.setLoading(false));
+            dispatch(whoAmI())
+              .unwrap()
+              .then((user: User) => {
+                resolve(fulfillWithValue(data) as any);
+                SnackbarUtils.success(`Welcome ${user.fullName}`);
+              });
           });
-      }, 10);
-      return response.data;
-    } catch (error) {
-      if (error.isAxiosError) {
-        throw rejectWithValue({ ...error.response.data, status: error.response.status });
-      }
-      throw rejectWithValue(error);
-    }
+        })
+        .catch(error => {
+          if (error.isAxiosError) {
+            reject(rejectWithValue({ ...error.response.data, status: error.response.status }));
+          }
+          reject(rejectWithValue(error));
+        })
+        .finally(() => dispatch(authActions.setLoading(false)));
+    });
+  },
+);
+
+const googleLogin = createAsyncThunk(
+  'auth/googleLogin',
+  async (payload: LoginGoogleUserDTO, { dispatch, fulfillWithValue, rejectWithValue }) => {
+    return new Promise<LoginResponse>((resolve, reject) => {
+      dispatch(authActions.setLoading(true));
+      authApi
+        .loginViaGoogle(payload)
+        .then(({ data }) => {
+          TokenService.setTokenPayload(data);
+          dispatch(whoAmI())
+            .unwrap()
+            .then((user: User) => {
+              resolve(fulfillWithValue(data) as any);
+              SnackbarUtils.success(`Welcome ${user.fullName}`);
+            });
+        })
+        .catch(error => {
+          if (error.isAxiosError) {
+            reject(rejectWithValue({ ...error.response.data, status: error.response.status }));
+          }
+          reject(rejectWithValue(error));
+        })
+        .finally(() => {
+          dispatch(authActions.setLoading(false));
+        });
+    });
   },
 );
 
@@ -39,13 +76,11 @@ const loginAndFetchTokens = createAsyncThunk(
  */
 const refetchTokens = createAsyncThunk(
   'auth/refetchTokens',
-  async (refreshToken: string, { rejectWithValue }) => {
+  async (refreshToken: string, { fulfillWithValue, rejectWithValue }) => {
     try {
-      const response = await authApi.refreshToken(refreshToken);
-      TokenService.setAccessToken(response.data.accessToken);
-      TokenService.setRefreshToken(response.data.refreshToken);
-      TokenService.setExpireTimestamp(response.data.expiresAt);
-      return response.data;
+      const { data } = await authApi.refreshToken(refreshToken);
+      TokenService.setTokenPayload(data);
+      return fulfillWithValue(data as AnyObject);
     } catch (error) {
       if (error.isAxiosError) {
         throw rejectWithValue({ ...error.response.data, status: error.response.status });
@@ -72,9 +107,9 @@ const whoAmI = createAsyncThunk(
   'auth/whoAmI',
   async (_, { dispatch, rejectWithValue, fulfillWithValue }) => {
     try {
-      const response = await authApi.whoAmI();
-      dispatch(userAddressThunks.getUserAddresses({ search: { userId: response.data.id } }));
-      return fulfillWithValue(response.data as any);
+      const { data } = await authApi.whoAmI();
+      dispatch(userAddressThunks.getUserAddresses({ search: { userId: data.id } }));
+      return fulfillWithValue(data as any);
     } catch (error) {
       if (error.isAxiosError) {
         throw rejectWithValue({ ...error.response.data, status: error.response.status });
@@ -84,10 +119,11 @@ const whoAmI = createAsyncThunk(
   },
 );
 
-export { loginAndFetchTokens, refetchTokens, logout, whoAmI };
+export { login, googleLogin, refetchTokens, logout, whoAmI };
 
 export const AuthThunks = {
-  loginAndFetchTokens,
+  login,
+  googleLogin,
   refetchTokens,
   logout,
   whoAmI,

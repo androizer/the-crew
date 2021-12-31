@@ -29,17 +29,21 @@ import {
 import { Box } from '@mui/system';
 import { Role } from '@the-crew/common/enums';
 import { useState } from 'react';
+import { useGoogleLogout } from 'react-google-login';
 import { useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 
 import { theCrewLogo } from '../../../../assets/icons';
-import { useAppDispatch, useAppSelector } from '../../../store';
+import { environment } from '../../../../environments/environment';
+import { useAppDispatch } from '../../../store';
 import { authSelector } from '../../../store/slices';
 import { AuthThunks } from '../../../store/thunks';
 
+import type { User } from '@the-crew/common';
+
 export default function Header() {
   const [openSideMenu, setSideMenuStatus] = useState(false);
-  const authState = useSelector(authSelector);
+  const { user: currentUser } = useSelector(authSelector);
   const history = useHistory();
   const theme = useTheme();
   const xsView = useMediaQuery(theme.breakpoints.down('sm'));
@@ -56,7 +60,7 @@ export default function Header() {
     <div style={{ position: 'sticky', width: '100%', top: 0, zIndex: 100 }}>
       <AppBar position="static">
         <Toolbar>
-          {xsView && !authState.user && (
+          {xsView && !currentUser && (
             <IconButton
               edge="start"
               color="inherit"
@@ -77,7 +81,7 @@ export default function Header() {
               }}
             />
           </div>
-          {(!authState.user || !authState.user?.role.includes(Role.PROFESSIONAL)) && !xsView && (
+          {(!currentUser || !currentUser?.role.includes(Role.PROFESSIONAL)) && !xsView && (
             <Button
               className="registerAsProfessionalBtn"
               color="inherit"
@@ -89,7 +93,7 @@ export default function Header() {
               Register As A Professional
             </Button>
           )}
-          {!authState.user ? (
+          {!currentUser ? (
             !xsView && (
               <>
                 <Button
@@ -111,7 +115,7 @@ export default function Header() {
               </>
             )
           ) : (
-            <MyAvatar />
+            <MyAvatar currentUser={currentUser} />
           )}
         </Toolbar>
       </AppBar>
@@ -154,7 +158,7 @@ export default function Header() {
               </ListItemIcon>
               <ListItemText primary="Sign Up" />
             </ListItem>
-            {(!authState.user || !authState.user?.role.includes(Role.PROFESSIONAL)) && (
+            {(!currentUser || !currentUser?.role.includes(Role.PROFESSIONAL)) && (
               <ListItem
                 button
                 key="register_as_professional"
@@ -176,12 +180,21 @@ export default function Header() {
   );
 }
 
-const MyAvatar: React.FC = props => {
+const MyAvatar: React.FC<{ currentUser: User }> = ({ currentUser }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const dispatch = useAppDispatch();
   const open = Boolean(anchorEl);
   const history = useHistory();
-  const authState = useAppSelector(authSelector);
+
+  const { signOut } = useGoogleLogout({
+    clientId: environment.googleClientId,
+    onLogoutSuccess: () => {
+      onLogout();
+    },
+    onFailure: () => {
+      onLogout();
+    },
+  });
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -191,12 +204,23 @@ const MyAvatar: React.FC = props => {
     setAnchorEl(null);
   };
 
+  const onLogout = () => {
+    dispatch(AuthThunks.logout())
+      .unwrap()
+      .finally(() => {
+        history.push('/login');
+      });
+  };
+
   return (
     <>
-      <Tooltip title={authState.user?.fullName ?? ''}>
+      <Tooltip title={currentUser.fullName ?? ''}>
         <IconButton onClick={handleClick} size="small" sx={{ ml: 2 }}>
-          <Avatar sx={{ width: 32, height: 32 }}>
-            {authState.user?.fullName?.[0].toUpperCase()}
+          <Avatar
+            sx={{ height: 48, width: 'auto' }}
+            {...(currentUser.meta.imgUrl ? { src: `${currentUser.meta.imgUrl}` } : null)}
+          >
+            {currentUser.meta.imgUrl && currentUser.fullName[0].toUpperCase()}
           </Avatar>
         </IconButton>
       </Tooltip>
@@ -247,7 +271,7 @@ const MyAvatar: React.FC = props => {
           </ListItemIcon>
           My Profile
         </MenuItem>
-        {authState.user.role[0] === Role.PROFESSIONAL && (
+        {currentUser.role.includes(Role.PROFESSIONAL) && (
           <MenuItem onClick={() => history.push('/services')}>
             <ListItemIcon>
               <Handyman fontSize="small" />
@@ -257,8 +281,11 @@ const MyAvatar: React.FC = props => {
         )}
         <MenuItem
           onClick={() => {
-            history.push('/login');
-            dispatch(AuthThunks.logout());
+            if (currentUser.meta.googleId) {
+              signOut();
+            } else {
+              onLogout();
+            }
           }}
         >
           <ListItemIcon>

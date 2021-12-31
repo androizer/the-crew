@@ -28,9 +28,6 @@ import { SubOrderService } from '../services';
       'order.consumer': { eager: false },
     },
   },
-  routes: {
-    exclude: ['createManyBase'],
-  },
 })
 @UseInterceptors(ClassSerializerInterceptor)
 @UseGuards(JwtAuthGuard)

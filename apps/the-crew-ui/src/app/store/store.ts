@@ -31,7 +31,7 @@ const rootReducer = (state: RootState, action: AnyAction) => {
 
 const store = configureStore({
   reducer: rootReducer,
-  // middleware: getDefaultMiddleware => getDefaultMiddleware().concat(authApi.middleware), this one is only for RTK Query
+  middleware: getDefaultMiddleware => getDefaultMiddleware({ serializableCheck: false }),
 });
 
 export type RootState = ReturnType<typeof combineReducer>;
