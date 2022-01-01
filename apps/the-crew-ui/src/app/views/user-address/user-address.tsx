@@ -54,16 +54,17 @@ const UserAddressWrapper: React.FC<IUserAddressForm> = props => {
 };
 
 export const AddAddressForm = forwardRef<unknown, IUserAddressForm>((props, ref) => {
-  const { values, errors, touched, handleChange, handleBlur, handleSubmit, isValid } = useFormik({
-    initialValues: props.initialValues ?? ({} as AddressDTO),
-    validationSchema: validationSchema,
-    onSubmit: evt => {
-      if (!props.isEmbedded) {
-        // TODO: logic need to be added
-        console.log(evt);
-      }
-    },
-  });
+  const { values, errors, touched, handleChange, handleBlur, handleSubmit, isValid, resetForm } =
+    useFormik({
+      initialValues: props.initialValues ?? ({} as AddressDTO),
+      validationSchema: validationSchema,
+      onSubmit: evt => {
+        if (!props.isEmbedded) {
+          // TODO: logic need to be added
+          console.log(evt);
+        }
+      },
+    });
   const stateRef = useRef(null);
   stateRef.current = values;
 
@@ -76,6 +77,9 @@ export const AddAddressForm = forwardRef<unknown, IUserAddressForm>((props, ref)
       },
       getValue: () => {
         return stateRef.current;
+      },
+      formik: {
+        resetForm,
       },
     };
   });

@@ -10,6 +10,10 @@ type HttpBaseConfig = {
   basePath: string;
 };
 
+export type CreateManyDTO<T> = {
+  bulk: Partial<T>[];
+};
+
 export class BaseHttpAPI<T> {
   private basePath: string;
   private instance: AxiosInstance;
@@ -38,10 +42,7 @@ export class BaseHttpAPI<T> {
     });
   }
 
-  createMany<R = GetManyDefaultResponse<T>>(
-    payload: Partial<T> & AnyObject,
-    params: CreateQueryParams = {},
-  ) {
+  createMany<R = T[]>(payload: CreateManyDTO<T>, params: CreateQueryParams = {}) {
     const url = `${this.basePath}/bulk`;
     return this.instance.post<R>(url, payload, {
       params,

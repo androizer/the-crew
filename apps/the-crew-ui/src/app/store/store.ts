@@ -5,7 +5,6 @@ import {
   cartReducer,
   serviceReducer,
   subOrderReducer,
-  paymentReducer,
   userAddressReducer,
   orderReducer,
   userReducer,
@@ -17,7 +16,6 @@ const combineReducer = combineReducers({
   cart: cartReducer,
   subOrders: subOrderReducer,
   order: orderReducer,
-  payment: paymentReducer,
   userAddresses: userAddressReducer,
   user: userReducer,
 });

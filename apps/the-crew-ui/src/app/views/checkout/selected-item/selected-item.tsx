@@ -5,7 +5,8 @@ import { Grid, Paper, Typography } from '@mui/material';
 import { AddButton } from '../../../components';
 import { useAppDispatch } from '../../../store';
 import { cartActions } from '../../../store/slices';
-import { Cart } from '../../../types';
+
+import type { Cart } from '@the-crew/common';
 
 interface ISelectedItem {
   data: Cart;

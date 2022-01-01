@@ -1,28 +1,26 @@
-enum PaymentDetails {
-  PAYMENT_SESSION_ID = 'payment_session_id',
-}
+import type { KeyValue } from '@the-crew/common';
 
 /**
- * Get payment session id from local storage
+ * Get payment session value from session storage via sessionId
  * @returns Payment session Id
  */
-function getPaymentSession() {
-  return localStorage.getItem(PaymentDetails.PAYMENT_SESSION_ID);
+function getPaymentSession(key: KeyValue['key']): string {
+  return sessionStorage.getItem(key);
 }
 
 /**
- * Set payment session id into local storage
+ * Set payment session key/value into session storage
  * @param sessionId
  */
-function setPaymentSession(sessionObject: string) {
-  localStorage.setItem(PaymentDetails.PAYMENT_SESSION_ID, sessionObject);
+function setPaymentSession({ key, value }: KeyValue): void {
+  sessionStorage.setItem(key, value);
 }
 
 /**
- * Removes payment session object from local storage
+ * Removes payment session object from session storage via sessionId
  */
-function removePaymentSession() {
-  localStorage.removeItem(PaymentDetails.PAYMENT_SESSION_ID);
+function removePaymentSession(key: KeyValue['key']): void {
+  sessionStorage.removeItem(key);
 }
 
 export { getPaymentSession, setPaymentSession, removePaymentSession };

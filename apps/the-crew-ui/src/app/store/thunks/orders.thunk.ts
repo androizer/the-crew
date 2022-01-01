@@ -1,10 +1,11 @@
-import { CreateQueryParams } from '@nestjsx/crud-request';
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { uuid } from '@the-crew/common';
 import { batch } from 'react-redux';
 
 import { OrderApi } from '../../services';
 import { orderActions, subOrderActions } from '../slices';
+
+import type { CreateQueryParams } from '@nestjsx/crud-request';
+import type { Order, uuid } from '@the-crew/common';
 
 const getOrders = createAsyncThunk(
   'orders/GetMany',
@@ -52,7 +53,10 @@ const getOrder = createAsyncThunk(
 
 const createOrder = createAsyncThunk(
   'orders/CreateOne',
-  async (args: { payload; query?: CreateQueryParams }, { dispatch, fulfillWithValue }) => {
+  async (
+    args: { payload: Pick<Order, 'consumerId'>; query?: CreateQueryParams },
+    { dispatch, fulfillWithValue },
+  ) => {
     const { payload, query } = args;
     const response = await OrderApi.createOne(payload, query);
     dispatch(orderActions.createOrder(response.data));

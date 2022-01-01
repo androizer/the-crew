@@ -1,28 +1,31 @@
+import type { Cart } from '@the-crew/common';
+
 enum CartDetails {
   CART_ITEMS = 'cart_items',
 }
 
 /**
- * Get cart items from local storage
+ * Get cart items from session storage
  * @returns cart items
  */
-function getCartItems() {
-  return localStorage.getItem(CartDetails.CART_ITEMS);
+function getCartItems(): Cart[] {
+  const value = sessionStorage.getItem(CartDetails.CART_ITEMS);
+  return JSON.parse(value);
 }
 
 /**
- * Set cart items into local storage
- * @param sessionId
+ * Set cart items into session storage
+ * @param cartItems
  */
-function setCartItems(sessionObject: string) {
-  localStorage.setItem(CartDetails.CART_ITEMS, sessionObject);
+function setCartItems(cartItems: Cart[]) {
+  sessionStorage.setItem(CartDetails.CART_ITEMS, JSON.stringify(cartItems));
 }
 
 /**
- * Removes cart items object from local storage
+ * Removes cart items object from session storage
  */
 function removeCartItems() {
-  localStorage.removeItem(CartDetails.CART_ITEMS);
+  sessionStorage.removeItem(CartDetails.CART_ITEMS);
 }
 
 export { getCartItems, setCartItems, removeCartItems };

@@ -59,4 +59,8 @@ export class EnvironmentVariables {
   @IsString()
   @IsNotEmpty()
   NX_STRIPE_PRIVATE_KEY: string;
+
+  @IsNumberString()
+  @IsNotEmpty()
+  NX_CONVENIENCE_FEE: string;
 }

@@ -1,26 +1,36 @@
-import { CreateQueryParams } from '@nestjsx/crud-request';
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { UserAddress } from '@the-crew/common';
 import { batch } from 'react-redux';
 
 import { userAddressApi } from '../../services';
 import { userAddressActions } from '../slices';
 
+import type { CreateQueryParams } from '@nestjsx/crud-request';
+import type { UserAddress } from '@the-crew/common';
+
 const getUserAddresses = createAsyncThunk(
   'user-addresses/GetMany',
   async (query: CreateQueryParams = {}, { dispatch, fulfillWithValue, rejectWithValue }) => {
-    try {
+    return new Promise((resolve, reject) => {
       dispatch(userAddressActions.setLoading(true));
-      const response = await userAddressApi.getMany(query);
-      batch(() => {
-        dispatch(userAddressActions.setLoading(false));
-        dispatch(userAddressActions.addUserAddresses(response.data.data));
-      });
-      return fulfillWithValue(response.data as any);
-    } catch (error) {
-      dispatch(userAddressActions.setLoading(false));
-      throw rejectWithValue(error);
-    }
+      userAddressApi
+        .getMany(query)
+        .then(({ data: { data } }) => {
+          batch(() => {
+            dispatch(userAddressActions.setLoading(false));
+            dispatch(userAddressActions.addUserAddresses(data));
+          });
+          resolve(fulfillWithValue(data) as any);
+        })
+        .catch(error => {
+          if (error.isAxiosError) {
+            error = { ...error.response.data, status: error.response.status };
+          }
+          reject(rejectWithValue(error));
+        })
+        .finally(() => {
+          dispatch(userAddressActions.setLoading(false));
+        });
+    });
   },
 );
 
@@ -30,19 +40,28 @@ const createUserAddress = createAsyncThunk(
     args: { payload: Partial<UserAddress>; query?: CreateQueryParams },
     { dispatch, fulfillWithValue, rejectWithValue },
   ) => {
-    const { payload, query } = args;
-    dispatch(userAddressActions.setLoading(true));
-    try {
-      const response = await userAddressApi.createOne(payload, query);
-      batch(() => {
-        dispatch(userAddressActions.addUserAddress(response.data));
-        dispatch(userAddressActions.setLoading(true));
-      });
-      return fulfillWithValue(response.data as any);
-    } catch (error) {
-      dispatch(userAddressActions.setLoading(false));
-      throw rejectWithValue(error);
-    }
+    return new Promise<UserAddress>((resolve, reject) => {
+      const { payload, query } = args;
+      dispatch(userAddressActions.setLoading(true));
+      userAddressApi
+        .createOne(payload, query)
+        .then(({ data }) => {
+          batch(() => {
+            dispatch(userAddressActions.setLoading(false));
+            dispatch(userAddressActions.addUserAddress(data));
+          });
+          resolve(fulfillWithValue(data) as any);
+        })
+        .catch(error => {
+          if (error.isAxiosError) {
+            error = { ...error.response.data, status: error.response.status };
+          }
+          reject(rejectWithValue(error));
+        })
+        .finally(() => {
+          dispatch(userAddressActions.setLoading(false));
+        });
+    });
   },
 );
 

@@ -118,6 +118,7 @@ export default function Login() {
                           value={values.email}
                           onChange={handleChange}
                           onBlur={handleBlur}
+                          disabled={authState.isLoading}
                           endAdornment={
                             <InputAdornment position="end">
                               <IconButton edge="end" tabIndex={-1}>
@@ -146,6 +147,7 @@ export default function Login() {
                           value={values.password}
                           onChange={handleChange}
                           onBlur={handleBlur}
+                          disabled={authState.isLoading}
                           endAdornment={
                             <InputAdornment position="end">
                               <IconButton

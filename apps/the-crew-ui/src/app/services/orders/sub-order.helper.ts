@@ -1,16 +1,16 @@
 import { OrderStatus } from '@the-crew/common/enums';
-import { Order } from '@the-crew/common/models';
-import { Cart } from '../../types';
+
+import type { Cart, Order, SubOrder } from '@the-crew/common';
 
 export function generateSubOrdersToBeSaved(_cartItems: Cart[], order: Order) {
-  const _subOrders = [];
-  _cartItems.forEach(x => {
+  const _subOrders: Partial<SubOrder>[] = [];
+  _cartItems.forEach(cart => {
     _subOrders.push({
-      serviceId: x.id,
+      serviceId: cart.id,
       orderId: order?.id,
       status: OrderStatus.SCHEDULED,
-      quantity: x.quantity,
-      price: x.price,
+      quantity: cart.quantity,
+      price: cart.price,
     });
   });
   return { bulk: _subOrders };

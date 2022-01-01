@@ -1,9 +1,8 @@
 import { Button, DialogActions, DialogContent, Divider, Typography } from '@mui/material';
 import { useHistory } from 'react-router';
 
-import { useAppDispatch, useAppSelector } from '../../store';
+import { useAppSelector } from '../../store';
 import { authSelector, cartSelectors } from '../../store/slices';
-import { createCheckoutSession } from '../../store/thunks';
 import style from './checkout.module.scss';
 import SelectedItem from './selected-item';
 
@@ -16,13 +15,6 @@ const CheckoutSummary: React.FC<ICheckoutSummary> = props => {
   const cartItems = useAppSelector(state => cartSelectors.selectAll(state.cart));
   const authState = useAppSelector(authSelector);
   const history = useHistory();
-  const dispatch = useAppDispatch();
-
-  const handlePayment = () => {
-    dispatch(createCheckoutSession(cartItems)).then(res => {
-      window.location = res.payload.url;
-    });
-  };
 
   return (
     <>

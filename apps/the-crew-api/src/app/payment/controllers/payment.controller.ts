@@ -1,24 +1,37 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Post,
+  UseGuards,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { PaymentSession, ServiceRequest } from '@the-crew/common';
+import { CreateCheckoutSessionDTO, PaymentSession } from '@the-crew/common';
 
 import { JwtAuthGuard } from '../../auth/guards';
 import { PaymentService } from '../services';
 
 @UseGuards(JwtAuthGuard)
+@UsePipes(new ValidationPipe({ whitelist: true }))
 @ApiTags('Payment')
 @Controller('payment')
 export class PaymentController {
   constructor(public readonly service: PaymentService) {}
 
-  @Post('retrieve-payment-session')
-  public async RetrieveSessionBySessionId(@Body() sessionDetails: PaymentSession) {
-    console.log(sessionDetails.sessionId);
-    return this.service.RetrieveSessionBySessionId(sessionDetails.sessionId);
+  @Post('retrieve-session')
+  async RetrieveSessionBySessionId(@Body() dto: PaymentSession) {
+    return this.service.retrieveSessionBySessionId(dto.sessionId);
   }
 
-  @Post('create-checkout-session')
-  public async CreateCheckoutSession(@Body() services: ServiceRequest[]) {
-    return this.service.CreateCheckOutSession(services);
+  @Post('create-session')
+  async CreateCheckoutSession(@Body() dto: CreateCheckoutSessionDTO) {
+    return this.service.createCheckOutSession(dto.cartItems);
+  }
+
+  @Delete('delete-session')
+  async DeleteSessionById(@Body() dto: PaymentSession) {
+    return this.service.expireSession(dto.sessionId);
   }
 }

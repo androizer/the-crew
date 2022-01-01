@@ -1,5 +1,6 @@
 import { createEntityAdapter, createSlice } from '@reduxjs/toolkit';
-import { Cart } from '../../types';
+
+import type { Cart } from '@the-crew/common';
 
 const adapter = createEntityAdapter<Cart>();
 
@@ -7,6 +8,7 @@ const cartSlice = createSlice({
   name: 'cart',
   initialState: adapter.getInitialState(),
   reducers: {
+    addItems: adapter.setMany,
     addItem: adapter.addOne,
     removeItem: adapter.removeOne,
     addQuantity: adapter.updateOne,

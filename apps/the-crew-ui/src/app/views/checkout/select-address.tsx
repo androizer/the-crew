@@ -13,19 +13,19 @@ import {
   RadioGroup,
   Typography,
 } from '@mui/material';
-import { UserAddress, uuid } from '@the-crew/common';
 import { useEffect, useRef, useState } from 'react';
 import { useHistory } from 'react-router';
 
-import { CartSessionService } from '../../services';
+import { CartSessionService, PaymentApi } from '../../services';
 import { useAppDispatch, useAppSelector } from '../../store';
 import { authSelector, cartSelectors, userAddressSelectors } from '../../store/slices';
-import { createCheckoutSession } from '../../store/thunks';
-import { userAddressThunks } from '../../store/thunks/user-address.thunk';
+import { userAddressThunks } from '../../store/thunks';
 import { AddressDTO } from '../../types';
 import { AddAddressForm } from '../user-address/user-address';
 import style from './checkout.module.scss';
 import SavedAddress from './saved-addresses';
+
+import type { UserAddress, uuid } from '@the-crew/common';
 
 interface ISelectAddresses {
   setDialogTitle?: (value: string) => void;
@@ -46,6 +46,9 @@ const SelectAddress: React.FC<ISelectAddresses> = props => {
 
   useEffect(() => {
     props.setDialogTitle?.('Addresses');
+  }, []);
+
+  useEffect(() => {
     savedAddresses.some(address => {
       if (address.isDefault) {
         setSelectedAddress(address.id);
@@ -53,12 +56,15 @@ const SelectAddress: React.FC<ISelectAddresses> = props => {
       }
       return false;
     });
-  }, []);
+  }, [savedAddresses]);
 
   const handlePayment = () => {
-    CartSessionService.setCartItems(JSON.stringify(cartItems));
-    dispatch(createCheckoutSession(cartItems)).then(res => {
-      window.location = res.payload.url;
+    CartSessionService.setCartItems(cartItems);
+    const dto = {
+      cartItems: cartItems.map(({ quantity, id }) => ({ serviceId: id, quantity })),
+    };
+    PaymentApi.createPaymentSession(dto).then(res => {
+      window.location.href = res.url;
     });
   };
 
@@ -97,7 +103,11 @@ const SelectAddress: React.FC<ISelectAddresses> = props => {
                   if (!savedAddresses.length) {
                     addressDto.isDefault = true;
                   }
-                  dispatch(userAddressThunks.createUserAddress({ payload: addressDto }));
+                  dispatch(userAddressThunks.createUserAddress({ payload: addressDto }))
+                    .unwrap()
+                    .then(() => {
+                      ref.current.formik.resetForm?.();
+                    });
                 }}
                 endIcon={<SaveIcon />}
                 disabled={!isAddressValid}

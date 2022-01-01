@@ -8,6 +8,7 @@ import { Footer, Header, Main, Startup } from './components';
 import { SnackbarUtilsConfigurator } from './core/services/snackbar-config.service';
 import store from './store';
 import {
+  AboutUs,
   Bookings,
   Home,
   Login,
@@ -49,6 +50,7 @@ export function App() {
                 <Route path="/search" exact render={() => <SearchService />} />
                 <Route path="/services" exact render={() => <ServiceList />} />
                 <Route path="/bookings" exact render={() => <Bookings />} />
+                <Route path="/about-us" exact render={() => <AboutUs />} />
                 <Route render={() => <NotFound404 />} />
               </Switch>
               <Footer />

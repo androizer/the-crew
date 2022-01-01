@@ -1,26 +1,31 @@
 import { Button, ButtonGroup, Grid, Typography } from '@mui/material';
-import { PaymentSession } from '@the-crew/common/models/session.model';
 import { OrderStatus, Role } from '@the-crew/common/enums';
 import { useEffect, useMemo, useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
 
 import { searchRecords } from '../../../assets/images/generic';
 import { BookingCard, OverlayLoading } from '../../components';
 import {
   CartSessionService,
   generateSubOrdersToBeSaved,
+  PaymentApi,
   PaymentSessionService,
+  subOrderApi,
 } from '../../services';
 import { useAppDispatch, useAppSelector } from '../../store';
-import { orderActions, subOrderSelector } from '../../store/slices';
-import { orderThunks, PaymentThunks, subOrderThunks } from '../../store/thunks';
+import { subOrderSelector } from '../../store/slices';
+import { orderThunks, subOrderThunks } from '../../store/thunks';
 import style from './bookings.module.scss';
+
+import type { PaymentSession } from '@the-crew/common';
 
 export default function MyBookings() {
   const history = useHistory();
+  const { search } = useLocation();
   const dispatch = useAppDispatch();
-  const paymentSession = useMemo(() => new PaymentSession(), []);
+  const query = useMemo(() => new URLSearchParams(search), [search]);
   const subOrders = useAppSelector(state => subOrderSelector.selectAll(state.subOrders));
+  const isLoaded = useAppSelector(state => state.subOrders.isLoaded);
   const isLoading = useAppSelector(state => state.subOrders.loading);
   const currentUser = useAppSelector(state => state.auth.user);
   const [onGoing, setOnGoing] = useState(true);
@@ -31,35 +36,45 @@ export default function MyBookings() {
 
   useEffect(() => {
     if (currentUser) {
-      const sessionId = PaymentSessionService.getPaymentSession();
-      if (sessionId !== null) {
-        paymentSession.sessionId = sessionId;
-        dispatch(PaymentThunks.getPaymentSession(paymentSession)).then(res => {
-          if (res.payload.payment_status === 'paid') {
-            dispatch(orderThunks.createOrder({ payload: { consumerId: currentUser.id } }))
-              .unwrap()
-              .then(currentOrder => {
-                const cartItems = JSON.parse(CartSessionService.getCartItems());
-                dispatch(
-                  subOrderThunks.createManySubOrders({
-                    payload: generateSubOrdersToBeSaved(cartItems, currentOrder),
-                  }),
-                ).then(() => {
-                  orderActions.clearOrders();
-                  CartSessionService.removeCartItems();
+      const sessionRef = query.get('sRef');
+      if (sessionRef) {
+        const sessionId = PaymentSessionService.getPaymentSession(query.get('sRef'));
+        if (sessionId !== null) {
+          const paymentSession: PaymentSession = {
+            sessionId,
+          };
+          PaymentApi.getPaymentSession(paymentSession).then(res => {
+            if (res.payment_status === 'paid') {
+              dispatch(orderThunks.createOrder({ payload: { consumerId: currentUser.id } }))
+                .unwrap()
+                .then(currentOrder => {
+                  const cartItems = CartSessionService.getCartItems();
+                  subOrderApi
+                    .createMany(generateSubOrdersToBeSaved(cartItems, currentOrder))
+                    .then(() => {
+                      CartSessionService.removeCartItems();
+                      PaymentSessionService.removePaymentSession(sessionRef);
+                      getBookings();
+                      history.push('/bookings');
+                    });
                 });
-              });
-          }
-          PaymentSessionService.removePaymentSession();
-        });
+            }
+          });
+        }
       }
     } else {
       history.push('/');
     }
-  }, [dispatch, paymentSession, currentUser]);
+  }, [dispatch, currentUser]);
 
   useEffect(() => {
     // get all sub-orders
+    if (!isLoaded) {
+      getBookings();
+    }
+  }, []);
+
+  const getBookings = () => {
     dispatch(
       subOrderThunks.getSubOrders({
         join: [
@@ -79,7 +94,7 @@ export default function MyBookings() {
         },
       }),
     );
-  }, []);
+  };
 
   return (
     <div className={style.bookingRoot}>
@@ -110,36 +125,37 @@ export default function MyBookings() {
           </Button>
         </ButtonGroup>
       </div>
-      <Grid container flex={1} spacing={2} justifyContent="center" alignItems="center">
+      <Grid container flex={1} flexDirection="column">
         {isLoading ? (
           <OverlayLoading open={isLoading} />
         ) : subOrders.length ? (
-          onGoing ? (
-            subOrders
-              .filter(_subOrder => [OrderStatus.SCHEDULED].includes(_subOrder.status))
-              .map((_subOrder, index) => {
-                return (
-                  <Grid item key={index}>
-                    <BookingCard subOrder={_subOrder} />
-                  </Grid>
-                );
-              })
-          ) : (
-            subOrders
-              .filter(_subOrder =>
-                [OrderStatus.CANCELLED, OrderStatus.COMPLETED].includes(_subOrder.status),
-              )
-              .map((_subOrder, index) => {
-                return (
-                  <Grid item key={index}>
-                    <BookingCard subOrder={_subOrder} />
-                  </Grid>
-                );
-              })
-          )
+          <Grid container spacing={2} justifyContent="center" alignItems="start">
+            {onGoing
+              ? subOrders
+                  .filter(_subOrder => [OrderStatus.SCHEDULED].includes(_subOrder.status))
+                  .map((_subOrder, index) => {
+                    return (
+                      <Grid item key={index}>
+                        <BookingCard subOrder={_subOrder} />
+                      </Grid>
+                    );
+                  })
+              : subOrders
+                  .filter(_subOrder =>
+                    [OrderStatus.CANCELLED, OrderStatus.COMPLETED].includes(_subOrder.status),
+                  )
+                  .map((_subOrder, index) => {
+                    return (
+                      <Grid item key={index}>
+                        <BookingCard subOrder={_subOrder} />
+                      </Grid>
+                    );
+                  })}
+          </Grid>
         ) : (
           <Grid
             container
+            flex={1}
             flexDirection="column"
             justifyContent="center"
             alignItems="center"

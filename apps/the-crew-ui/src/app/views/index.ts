@@ -7,6 +7,7 @@ import Register from './register/register';
 import RegisterAsProfessional from './register-as-professional/register-as-professional';
 import ServiceList from './service-list/service-list';
 import SearchService from './service-search/search-service';
+import AboutUs from './about-us/about-us';
 
 export {
   Bookings,
@@ -18,4 +19,5 @@ export {
   RegisterAsProfessional,
   ServiceList,
   SearchService,
+  AboutUs,
 };
