@@ -8,6 +8,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import SettingsIcon from '@mui/icons-material/Settings';
 import UpcomingIcon from '@mui/icons-material/Upcoming';
+import GroupsIcon from '@mui/icons-material/Groups';
 import {
   AppBar,
   Avatar,
@@ -81,21 +82,33 @@ export default function Header() {
               }}
             />
           </div>
+          <Button
+            className="registerAsProfessionalBtn"
+            color="inherit"
+            onClick={() => {
+              history.push('/about-us');
+            }}
+          >
+            About Us
+          </Button>
           {(!currentUser || !currentUser?.role.includes(Role.PROFESSIONAL)) && !xsView && (
-            <Button
-              className="registerAsProfessionalBtn"
-              color="inherit"
-              style={{ textDecoration: 'underline' }}
-              onClick={() => {
-                history.push('/register-as-professional');
-              }}
-            >
-              Register As A Professional
-            </Button>
+            <>
+              <VerticalDivider />
+              <Button
+                className="registerAsProfessionalBtn"
+                color="inherit"
+                onClick={() => {
+                  history.push('/register-as-professional');
+                }}
+              >
+                Register As A Professional
+              </Button>
+            </>
           )}
           {!currentUser ? (
             !xsView && (
               <>
+                <VerticalDivider />
                 <Button
                   color="inherit"
                   onClick={() => {
@@ -104,6 +117,7 @@ export default function Header() {
                 >
                   Login
                 </Button>
+                <VerticalDivider />
                 <Button
                   color="inherit"
                   onClick={() => {
@@ -217,10 +231,10 @@ const MyAvatar: React.FC<{ currentUser: User }> = ({ currentUser }) => {
       <Tooltip title={currentUser.fullName ?? ''}>
         <IconButton onClick={handleClick} size="small" sx={{ ml: 2 }}>
           <Avatar
-            sx={{ height: 48, width: 'auto' }}
+            sx={{ height: 48, width: 48 }}
             {...(currentUser.meta.imgUrl ? { src: `${currentUser.meta.imgUrl}` } : null)}
           >
-            {currentUser.meta.imgUrl && currentUser.fullName[0].toUpperCase()}
+            {currentUser.fullName[0].toUpperCase()}
           </Avatar>
         </IconButton>
       </Tooltip>
@@ -295,5 +309,14 @@ const MyAvatar: React.FC<{ currentUser: User }> = ({ currentUser }) => {
         </MenuItem>
       </Menu>
     </>
+  );
+};
+
+const VerticalDivider = () => {
+  return (
+    <Divider
+      orientation="vertical"
+      style={{ borderColor: 'white', borderBottomWidth: '16px', margin: '0 4px' }}
+    ></Divider>
   );
 };
