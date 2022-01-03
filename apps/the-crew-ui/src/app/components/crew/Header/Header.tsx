@@ -117,7 +117,7 @@ export default function Header() {
                 >
                   Login
                 </Button>
-                <VerticalDivider />
+                {/* <VerticalDivider />
                 <Button
                   color="inherit"
                   onClick={() => {
@@ -125,7 +125,7 @@ export default function Header() {
                   }}
                 >
                   Sign Up
-                </Button>
+                </Button> */}
               </>
             )
           ) : (
@@ -159,7 +159,7 @@ export default function Header() {
               </ListItemIcon>
               <ListItemText primary="Login" />
             </ListItem>
-            <ListItem
+            {/* <ListItem
               button
               key="register"
               onClick={() => {
@@ -171,7 +171,7 @@ export default function Header() {
                 <PersonAddIcon />{' '}
               </ListItemIcon>
               <ListItemText primary="Sign Up" />
-            </ListItem>
+            </ListItem> */}
             {(!currentUser || !currentUser?.role.includes(Role.PROFESSIONAL)) && (
               <ListItem
                 button

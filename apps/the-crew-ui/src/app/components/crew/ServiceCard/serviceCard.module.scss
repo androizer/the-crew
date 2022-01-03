@@ -1,6 +1,8 @@
+@use '../../../theme/mixins' as mixin;
+
 .cardRoot {
-  width: 500px;
-  height: auto;
+  width: 350px;
+  height: 500px;
 }
 
 .media {
@@ -13,4 +15,26 @@
 .cardActionGrid {
   padding: 16px;
   margin-bottom: 16px;
+}
+
+.img-container {
+  background-image: url(https://res.cloudinary.com/urbanclap/image/upload/t_medium_res_template,q_30/images/supply/customer-app-supply/1634118672958-fb2d33.png);
+  background-size: cover;
+  background-repeat: no-repeat;
+  // background-blend-mode: darken;
+  background-color: #00000070;
+  position: relative;
+}
+
+.avatar-wrapper {
+  position: absolute !important;
+  bottom: -16px;
+  right: 8px;
+  height: 75px !important;
+  width: 75px !important;
+  border: 1px solid #fafafa;
+}
+
+.svc-desc {
+  @include mixin.line-ellipsis(4);
 }

@@ -3,6 +3,7 @@
 .bookingServiceCard {
   width: 480px;
   max-height: 400px;
+  background-color: white;
 }
 
 .bookingSummary {
@@ -48,9 +49,11 @@
   @include mixin.fxLayoutGap(row, 8px);
 }
 
-.rateNow {
-  text-align: center;
+.action-controls {
   margin-top: 16px;
+  @include mixin.fxLayout();
+  @include mixin.fxLayoutAlign(flex-end, center);
+  @include mixin.fxLayoutGap(row);
 }
 
 .ratingWrapper {

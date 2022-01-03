@@ -1,4 +1,4 @@
-import { StarRate } from '@mui/icons-material';
+import { StarRate, Check } from '@mui/icons-material';
 import { Avatar, Button, Divider, Grid, OutlinedInput, Tooltip, Typography } from '@mui/material';
 import { Review, SubOrder, User } from '@the-crew/common';
 import { OrderStatus, OrderStatusColour, Role } from '@the-crew/common/enums';
@@ -13,6 +13,9 @@ import { useAppDispatch, useAppSelector } from '../../../store';
 import { reviewThunks, subOrderThunks } from '../../../store/thunks';
 import HoverRating from '../RatingBar/RatingBar';
 import style from './BookingCard.module.scss';
+
+const avatarUrl =
+  'https://images.unsplash.com/photo-1621905252507-b35492cc74b4?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTF8fGhhbmR5bWFufGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=500&q=60';
 
 interface IBookingCardProps {
   subOrder?: SubOrder;
@@ -61,7 +64,7 @@ export const BookingCard: React.FC<IBookingCardProps> = ({ subOrder }) => {
               variant="circular"
               sx={{ height: '120px', width: '120px' }}
               alt="user-avatar"
-              src="https://images.unsplash.com/photo-1621905252507-b35492cc74b4?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTF8fGhhbmR5bWFufGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=500&q=60"
+              src={avatarUrl}
             />
             <div
               style={{
@@ -108,32 +111,43 @@ export const BookingCard: React.FC<IBookingCardProps> = ({ subOrder }) => {
             </div>
           )}
         </div>
-        <div className={style.rateNow}>
+        <div className={style['action-controls']}>
           {currentUser.role.includes(Role.PROFESSIONAL) ? (
-            <Button
-              variant="contained"
-              color="primary"
-              disabled={subOrder.status === OrderStatus.COMPLETED}
-              onClick={() => {
-                dispatch(
-                  subOrderThunks.updateSubOrder({
-                    payload: {
-                      id: subOrder.id,
-                      changes: {
-                        status: OrderStatus.COMPLETED,
-                      },
-                    },
-                  }),
-                )
-                  .unwrap()
-                  .then(() => enqueueSnackbar('Order marked as Completed', { variant: 'success' }))
-                  .catch(error =>
-                    enqueueSnackbar(error.message ?? 'Something went wrong!', { variant: 'error' }),
-                  );
-              }}
-            >
-              Changes status to completed
-            </Button>
+            subOrder.status === OrderStatus.SCHEDULED && (
+              <>
+                <Button variant="contained" color="warning" disabled>
+                  Cancel
+                </Button>
+                <Button
+                  variant="contained"
+                  color="success"
+                  endIcon={<Check />}
+                  onClick={() => {
+                    dispatch(
+                      subOrderThunks.updateSubOrder({
+                        payload: {
+                          id: subOrder.id,
+                          changes: {
+                            status: OrderStatus.COMPLETED,
+                          },
+                        },
+                      }),
+                    )
+                      .unwrap()
+                      .then(() =>
+                        enqueueSnackbar('Order marked as Completed', { variant: 'success' }),
+                      )
+                      .catch(error =>
+                        enqueueSnackbar(error.message ?? 'Something went wrong!', {
+                          variant: 'error',
+                        }),
+                      );
+                  }}
+                >
+                  Done
+                </Button>
+              </>
+            )
           ) : (
             <Button
               variant="contained"

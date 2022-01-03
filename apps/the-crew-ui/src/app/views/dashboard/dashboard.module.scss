@@ -1,0 +1,11 @@
+.services-carousel {
+  & :global(.alice-carousel__wrapper) {
+    height: 525px !important;
+  }
+}
+
+.bookings-carousel {
+  & :global(.alice-carousel__wrapper) {
+    height: 350px !important;
+  }
+}

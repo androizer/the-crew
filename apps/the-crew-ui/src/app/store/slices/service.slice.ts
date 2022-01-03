@@ -7,6 +7,7 @@ const serviceSlice = createSlice({
   name: 'services',
   initialState: serviceAdapter.getInitialState({
     loading: false,
+    isInitialLoaded: false,
   }),
   reducers: {
     addServices: serviceAdapter.setAll,
@@ -17,6 +18,9 @@ const serviceSlice = createSlice({
     removeService: serviceAdapter.removeOne,
     setLoading: (state, action: PayloadAction<boolean>) => {
       state.loading = action.payload;
+    },
+    setInitialLoaded: state => {
+      state.isInitialLoaded = true;
     },
   },
 });

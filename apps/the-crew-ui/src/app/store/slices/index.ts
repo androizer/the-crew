@@ -1,3 +1,4 @@
+export * from './generic.slice';
 export * from './auth.slice';
 export * from './cart.slice';
 export * from './review.slice';

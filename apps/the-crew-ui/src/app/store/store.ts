@@ -3,14 +3,16 @@ import { AnyAction, combineReducers, configureStore } from '@reduxjs/toolkit';
 import {
   authReducer,
   cartReducer,
+  genericReducer,
+  orderReducer,
   serviceReducer,
   subOrderReducer,
   userAddressReducer,
-  orderReducer,
   userReducer,
 } from './slices';
 
 const combineReducer = combineReducers({
+  generic: genericReducer,
   auth: authReducer,
   services: serviceReducer,
   cart: cartReducer,

@@ -2,12 +2,12 @@ import { Box, Container, Drawer, Grid, styled, Typography } from '@mui/material'
 import { ServiceRequest } from '@the-crew/common';
 import { Role, ServiceLocation, ServiceRequestType } from '@the-crew/common/enums';
 import { useEffect, useState } from 'react';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 
 import { searchRecords } from '../../../assets/images/generic';
-import { OverlayLoading, ServiceCard, ServiceDetail } from '../../components';
+import { ServiceCard, ServiceDetail } from '../../components';
 import { useAppDispatch, useAppSelector } from '../../store';
-import { authSelector, cartSelectors, serviceSelectors } from '../../store/slices';
+import { authSelector, cartSelectors, genericActions, serviceSelectors } from '../../store/slices';
 import { serviceThunks } from '../../store/thunks';
 import { CheckOut } from '../checkout';
 import style from './service-list.module.scss';
@@ -27,20 +27,30 @@ const ServiceList: React.FC<IServiceList> = props => {
   const [showCheckout, setShowCheckout] = useState(false);
   const isLoading = useAppSelector(state => state.services.loading);
   const services = useAppSelector(state => serviceSelectors.selectAll(state.services));
+  const { isInitialLoaded } = useAppSelector(state => state.services);
   const cartItems = useAppSelector(state => cartSelectors.selectAll(state.cart));
-  const authState = useAppSelector(authSelector);
-  const location = useLocation();
+  const { user: currentUser } = useAppSelector(authSelector);
 
   useEffect(() => {
-    if (location.pathname === '/services' && authState.user?.role.includes(Role.PROFESSIONAL)) {
-      dispatch(
-        serviceThunks.getServices({
-          join: [{ field: 'provider' }, { field: 'reviews' }],
-          search: {
-            providerId: authState.user.id,
-          },
-        }),
-      );
+    if (currentUser?.role.includes(Role.PROFESSIONAL)) {
+      if (!isInitialLoaded) {
+        dispatch(
+          serviceThunks.getServices({
+            join: [
+              {
+                field: 'provider',
+              },
+              {
+                field: 'reviews',
+              },
+            ],
+            sort: { field: 'modifiedOn', order: 'DESC' },
+            search: {
+              providerId: currentUser.id,
+            },
+          }),
+        );
+      }
     } else
       dispatch(
         serviceThunks.getServices({
@@ -54,46 +64,40 @@ const ServiceList: React.FC<IServiceList> = props => {
           ],
         }),
       );
-  }, [
-    dispatch,
-    history,
-    authState.user,
-    authState.user?.id,
-    authState.user?.role,
-    location.pathname,
-    props.location,
-    props.professionType,
-  ]);
+  }, [dispatch, history, currentUser, props.location, props.professionType]);
+
+  useEffect(() => {
+    dispatch(genericActions.setLoading({ isLoading }));
+  }, [isLoading, dispatch]);
 
   return (
     <div className={style.service_list_container}>
       <Main open={showDetail}>
         <Grid container justifyContent="center" alignItems="center" spacing={2}>
-          {isLoading ? (
-            <OverlayLoading open={isLoading} />
-          ) : (
-            services.map((service: ServiceRequest, index: number) => {
-              return (
-                <Grid item key={index}>
-                  <ServiceCard
-                    service={service}
-                    toggleViewDetails={() => {
-                      setShowDetail(!showDetail);
-                      setSelectedService(service);
-                    }}
-                  />
-                </Grid>
-              );
-            })
-          )}
-          {!services.length ? (
-            <Grid container className={style['not-found-container']}>
-              <img src={searchRecords} alt="not-found.svg" height="500px" width="auto" />
-              <Typography variant="h5">Oops..! Services not found!</Typography>
-              <Typography variant="subtitle1" color="gray">
-                Try another service type.
-              </Typography>
-            </Grid>
+          {!isLoading ? (
+            services.length ? (
+              services.map((service: ServiceRequest, index: number) => {
+                return (
+                  <Grid item key={index}>
+                    <ServiceCard
+                      service={service}
+                      toggleViewDetails={() => {
+                        setShowDetail(!showDetail);
+                        setSelectedService(service);
+                      }}
+                    />
+                  </Grid>
+                );
+              })
+            ) : (
+              <Grid container className={style['not-found-container']}>
+                <img src={searchRecords} alt="not-found.svg" height="500px" width="auto" />
+                <Typography variant="h5">Oops..! Services not found!</Typography>
+                <Typography variant="subtitle1" color="gray">
+                  Try another service type.
+                </Typography>
+              </Grid>
+            )
           ) : null}
         </Grid>
         {/* Checkout Bar */}

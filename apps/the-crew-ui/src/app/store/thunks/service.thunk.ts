@@ -9,18 +9,28 @@ import { serviceActions } from '../slices';
 const getServices = createAsyncThunk(
   'services/GetMany',
   async (query: CreateQueryParams = {}, { dispatch, fulfillWithValue, rejectWithValue }) => {
-    try {
+    return new Promise((resolve, reject) => {
       dispatch(serviceActions.setLoading(true));
-      const response = await serviceApi.getMany(query);
-      batch(() => {
-        dispatch(serviceActions.addServices(response.data.data));
-        dispatch(serviceActions.setLoading(false));
-      });
-      return fulfillWithValue(response.data.data as any);
-    } catch (error) {
-      dispatch(serviceActions.setLoading(false));
-      throw rejectWithValue(error);
-    }
+      serviceApi
+        .getMany(query)
+        .then(({ data: { data } }) => {
+          dispatch(serviceActions.addServices(data));
+          resolve(fulfillWithValue(data) as any);
+        })
+        .catch(err => {
+          let error = err;
+          if (error.isAxiosError) {
+            error = { ...error.response.data, status: error.response.status };
+          }
+          reject(rejectWithValue(error));
+        })
+        .finally(() => {
+          batch(() => {
+            dispatch(serviceActions.setLoading(false));
+            dispatch(serviceActions.setInitialLoaded());
+          })
+        });
+    });
   },
 );
 

@@ -40,6 +40,7 @@ export class LoaderOptions {
   speed: number;
   size: 'small' | 'default' | 'large';
   style: AnyObject;
+  text: string;
 
   constructor(data: Partial<LoaderOptions> = {}) {
     this.type = data.type ?? 'Semipolar';

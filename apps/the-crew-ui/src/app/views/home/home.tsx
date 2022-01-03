@@ -36,7 +36,9 @@ export default function Home() {
   const user = useSelector(authSelector).user;
 
   useEffect(() => {
-    user && user.role[0] === Role.PROFESSIONAL && history.push('/bookings');
+    if (user?.role.includes(Role.PROFESSIONAL)) {
+      history.push('/bookings');
+    }
   }, [history, user]);
 
   return (

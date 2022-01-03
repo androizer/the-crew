@@ -1,11 +1,10 @@
 import { StarRate } from '@mui/icons-material';
 import {
+  Avatar,
   Box,
   Button,
   Card,
   CardActions,
-  CardContent,
-  CardMedia,
   Divider,
   Grid,
   Slide,
@@ -15,16 +14,19 @@ import { ServiceRequest } from '@the-crew/common';
 import { useCallback } from 'react';
 
 import { useAppDispatch, useAppSelector } from '../../../store';
-import { authSelector, cartActions, cartSelectors } from '../../../store/slices';
-import { AddButton } from '../../generic';
+import { cartActions, cartSelectors } from '../../../store/slices';
 import style from './serviceCard.module.scss';
+
+const avatarUrl =
+  'https://images.unsplash.com/photo-1621905252507-b35492cc74b4?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTF8fGhhbmR5bWFufGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=500&q=60';
 
 interface IServiceCard {
   service: ServiceRequest;
   /**
    * Callback to view service details
    */
-  toggleViewDetails: () => void;
+  toggleViewDetails?: () => void;
+  disableAddButton?: boolean;
 }
 
 export const ServiceCard: React.FC<IServiceCard> = props => {
@@ -64,23 +66,24 @@ export const ServiceCard: React.FC<IServiceCard> = props => {
   return (
     <Slide direction="up" in={true} timeout={1000}>
       <Card className={style.cardRoot} elevation={6}>
-        <Grid className={style.cardActionGrid} container spacing={2}>
-          <Grid item xs={4}>
-            <CardMedia
-              className={style.media}
-              image="https://res.cloudinary.com/urbanclap/image/upload/t_medium_res_template,q_30/images/supply/customer-app-supply/1634118672958-fb2d33.png"
-              title={props.service.title}
+        <Grid container flexDirection="column" flexWrap="nowrap" height="100%" width="100%">
+          <Box height="250px" width="100%" className={style['img-container']}>
+            <Avatar
+              variant="circular"
+              alt="user-avatar"
+              src={avatarUrl}
+              className={style['avatar-wrapper']}
             />
-          </Grid>
-          <Grid container item xs flexDirection="column" spacing={2} position="relative">
-            <Grid container item xs flexDirection="column">
-              <Typography variant="h6">{props.service.title}</Typography>
+          </Box>
+          <Grid container flex={1} flexDirection="column" rowSpacing={1} padding={2}>
+            <Typography variant="h6">{props.service.title}</Typography>
+            <Grid container item justifyContent="space-between" alignItems="center">
               <Grid
-                container
                 item
+                display="inline-flex"
                 justifyContent="start"
                 alignItems="center"
-                spacing={0.5}
+                columnSpacing={0.5}
                 style={{
                   color: 'green',
                   fontWeight: 600,
@@ -93,42 +96,37 @@ export const ServiceCard: React.FC<IServiceCard> = props => {
                   <span>{getRatings()}</span>
                 </Grid>
               </Grid>
-              <Typography variant="body2" color="textSecondary" component="p">
-                {props.service.reviewIds.length} ratings
-              </Typography>
-              <Typography variant="subtitle1">₹ {props.service.price}</Typography>
+              <Grid item>
+                <Typography variant="body2" color="GrayText" component="p">
+                  {props.service.reviewIds.length} ratings
+                </Typography>
+              </Grid>
             </Grid>
-            <Box sx={{ position: 'absolute', right: '8px', bottom: '0' }}>
-              <AddButton
-                count={cartItem?.quantity ?? 0}
-                onAdd={onServiceAdd}
-                onRemove={onServiceRemove}
-              />
-            </Box>
+            <Typography variant="subtitle1">₹ {props.service.price}</Typography>
+            <Grid item flex={1} overflow="auto">
+              <Typography variant="body2" whiteSpace="pre-line" className={style['svc-desc']}>
+                {props.service.description}
+              </Typography>
+            </Grid>
           </Grid>
+          {props.toggleViewDetails && (
+            <>
+              <Divider />
+              <CardActions>
+                <Button size="small" color="primary" onClick={() => props.toggleViewDetails()}>
+                  View Details {'>'}
+                </Button>
+              </CardActions>
+            </>
+          )}
         </Grid>
-        <CardContent style={{ padding: 0 }}>
-          <Divider />
-          <ul>
-            {props.service.description.split(/[\r\n]+/g).map((point, index) => {
-              return (
-                <li key={index}>
-                  <Typography variant="body2" color="textSecondary" component="p">
-                    {point}
-                  </Typography>
-                </li>
-              );
-            })}
-          </ul>
-        </CardContent>
-        <CardActions>
-          <Button size="small" color="primary" onClick={() => props.toggleViewDetails()}>
-            View Details {'>'}
-          </Button>
-        </CardActions>
       </Card>
     </Slide>
   );
+};
+
+ServiceCard.defaultProps = {
+  disableAddButton: false,
 };
 
 export default ServiceCard;
