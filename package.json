@@ -40,6 +40,8 @@
     "@nestjsx/crud-request": "^5.0.0-alpha.3",
     "@nestjsx/crud-typeorm": "^5.0.0-alpha.3",
     "@reduxjs/toolkit": "^1.6.2",
+    "@stripe/react-stripe-js": "^1.7.0",
+    "@stripe/stripe-js": "^1.22.0",
     "axios": "^0.24.0",
     "bcrypt": "^5.0.1",
     "class-transformer": "^0.4.0",

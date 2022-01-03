@@ -1,6 +1,6 @@
-import { IsString } from 'class-validator';
+import { Cart, User } from '.';
 
-export class PaymentSession {
-  @IsString()
-  sessionId: string;
+export class PaymentIntentPayload {
+  services: Cart[];
+  user: User;
 }

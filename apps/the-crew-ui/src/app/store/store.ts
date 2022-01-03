@@ -8,6 +8,7 @@ import {
   userAddressReducer,
   orderReducer,
   userReducer,
+  paymentReducer,
 } from './slices';
 
 const combineReducer = combineReducers({
@@ -18,6 +19,7 @@ const combineReducer = combineReducers({
   order: orderReducer,
   userAddresses: userAddressReducer,
   user: userReducer,
+  payment: paymentReducer,
 });
 
 const rootReducer = (state: RootState, action: AnyAction) => {

@@ -1,8 +1,8 @@
 import { Button, DialogActions, DialogContent, Divider, Typography } from '@mui/material';
+import { useState } from 'react';
 import { useHistory } from 'react-router';
 
-import { environment } from '../../../environments/environment';
-import { useAppSelector } from '../../store';
+import { useAppDispatch, useAppSelector } from '../../store';
 import { authSelector, cartSelectors } from '../../store/slices';
 import style from './checkout.module.scss';
 import SelectedItem from './selected-item';
@@ -10,11 +10,12 @@ import SelectedItem from './selected-item';
 interface ICheckoutSummary {
   proceedToAddressCallback: () => void;
 }
-
+const convenienceFee = 39;
 const CheckoutSummary: React.FC<ICheckoutSummary> = props => {
   const cartItems = useAppSelector(state => cartSelectors.selectAll(state.cart));
   const authState = useAppSelector(authSelector);
   const history = useHistory();
+  const dispatch = useAppDispatch();
 
   return (
     <>
@@ -41,7 +42,7 @@ const CheckoutSummary: React.FC<ICheckoutSummary> = props => {
               Convenience Fees
             </Typography>
             <Typography variant="body2" color="textSecondary">
-              ₹ {environment.convenienceFee}
+              ₹ {convenienceFee}
             </Typography>
           </div>
           <Divider />
@@ -54,7 +55,7 @@ const CheckoutSummary: React.FC<ICheckoutSummary> = props => {
               {cartItems.reduce((acc, item) => {
                 acc += item.quantity * item.price;
                 return acc;
-              }, environment.convenienceFee)}
+              }, 0) + convenienceFee}
             </Typography>
           </div>
         </div>
