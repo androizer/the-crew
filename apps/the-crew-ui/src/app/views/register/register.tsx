@@ -80,7 +80,9 @@ export const RegisterForm = forwardRef((props: IRegisterForm, ref) => {
         return isValid;
       },
       getValue: () => {
-        return stateRef.current;
+        const value: RegisterAsProfessionalDTO['user'] = stateRef.current;
+        value.phone = `+91-${value.phone}`;
+        return value;
       },
     };
   });

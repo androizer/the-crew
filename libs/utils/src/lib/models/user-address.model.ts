@@ -5,13 +5,14 @@ import {
   IsNotEmpty,
   IsNumber,
   IsOptional,
+  IsPhoneNumber,
   IsPositive,
   IsString,
   IsUUID,
   ValidateNested,
 } from 'class-validator';
 
-import { User } from '.';
+import { User } from './user.model';
 
 import type { IUserAddress, uuid } from '../types';
 
@@ -19,6 +20,13 @@ export class UserAddress implements IUserAddress {
   @IsUUID()
   @IsOptional()
   id: uuid;
+
+  @IsString()
+  @IsNotEmpty()
+  fullName: string;
+
+  @IsPhoneNumber()
+  phone: string;
 
   @IsString()
   @IsNotEmpty()
@@ -37,6 +45,7 @@ export class UserAddress implements IUserAddress {
   pinCode: number;
 
   @IsBoolean()
+  @IsOptional()
   isDefault: boolean;
 
   @ValidateNested()

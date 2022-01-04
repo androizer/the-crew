@@ -73,7 +73,7 @@ const ServiceList: React.FC<IServiceList> = props => {
   return (
     <div className={style.service_list_container}>
       <Main open={showDetail}>
-        <Grid container justifyContent="center" alignItems="center" spacing={2}>
+        <Grid container justifyContent="center" alignItems="center" spacing={4}>
           {!isLoading ? (
             services.length ? (
               services.map((service: ServiceRequest, index: number) => {

@@ -13,6 +13,7 @@ import {
 import { ServiceRequest } from '@the-crew/common';
 import { useCallback } from 'react';
 
+import { AddButton } from '../..';
 import { useAppDispatch, useAppSelector } from '../../../store';
 import { cartActions, cartSelectors } from '../../../store/slices';
 import style from './serviceCard.module.scss';
@@ -102,7 +103,18 @@ export const ServiceCard: React.FC<IServiceCard> = props => {
                 </Typography>
               </Grid>
             </Grid>
-            <Typography variant="subtitle1">₹ {props.service.price}</Typography>
+            <Grid item container justifyContent="space-between" alignItems="center">
+              <Grid item>
+                <Typography variant="subtitle1">₹ {props.service.price}</Typography>
+              </Grid>
+              <Grid item>
+                <AddButton
+                  count={cartItem?.quantity ?? 0}
+                  onAdd={onServiceAdd}
+                  onRemove={onServiceRemove}
+                />
+              </Grid>
+            </Grid>
             <Grid item flex={1} overflow="auto">
               <Typography variant="body2" whiteSpace="pre-line" className={style['svc-desc']}>
                 {props.service.description}

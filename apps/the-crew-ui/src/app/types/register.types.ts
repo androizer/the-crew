@@ -42,6 +42,8 @@ export class ServiceDTO {
 }
 
 export class AddressDTO {
+  fullName: string;
+  phone: string;
   flat: string;
   street: string;
   city: string;
@@ -50,6 +52,8 @@ export class AddressDTO {
   isDefault: boolean; // don't assign any fallback value. it's on purpose.
 
   constructor(data: Partial<AddressDTO> = {}) {
+    this.fullName = data.fullName ?? '';
+    this.phone = data.phone ?? '';
     this.flat = data.flat ?? '';
     this.street = data.street ?? '';
     this.city = data.city ?? '';

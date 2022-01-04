@@ -18,15 +18,15 @@ const SavedAddress: React.FC<ISavedAddress> = ({ address }) => {
           <Radio value={address.id} />
         </Grid>
         <Grid item xs sx={{ paddingLeft: 1 }}>
-          <Typography variant="body1">{currentUser.fullName}</Typography>
-          <Typography variant="body2" color="GrayText">
+          <Typography variant="body1">{address.fullName}</Typography>
+          <Typography variant="subtitle1" color="GrayText">
             {address.flat}
           </Typography>
           <Typography variant="body2" color="GrayText">
-            {address.street + (address.city ? `, ${address.city}` : '')}
+            {address.street + (address.city ? `, ${address.city}` : '') + `, ${address.pinCode}`}
           </Typography>
           <Typography variant="subtitle2" color="GrayText">
-            {address.pinCode}
+            {address.phone}
           </Typography>
         </Grid>
         <Grid item>

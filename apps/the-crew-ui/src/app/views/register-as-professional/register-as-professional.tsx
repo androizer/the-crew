@@ -77,10 +77,7 @@ export default function RegisterAsProfessional() {
         setLoading(true);
         const { user, address } = registerDetails;
         const service = ref.current.getValue() as ServiceDTO;
-        const { data: userPayload } = await authApi.register({
-          ...user,
-          phone: `+91-${user.phone}`,
-        });
+        const { data: userPayload } = await authApi.register(user);
         const addressDTO = { ...address, userId: userPayload.id, isDefault: true };
         const serviceDTO = {
           ...service,

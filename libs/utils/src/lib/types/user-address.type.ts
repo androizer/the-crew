@@ -4,6 +4,8 @@ import { uuid } from './util.types';
 
 export type IUserAddress = {
   id: uuid;
+  fullName: string;
+  phone: string;
   flat: string;
   street: string;
   city: string;

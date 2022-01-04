@@ -47,6 +47,7 @@
     "cookie-parser": "^1.4.5",
     "core-js": "^3.6.5",
     "formik": "^2.2.9",
+    "helmet": "^5.0.1",
     "lodash-es": "^4.17.21",
     "notistack": "^2.0.3",
     "passport": "^0.5.0",

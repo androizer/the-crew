@@ -12,6 +12,16 @@ export class UserAddressEntity extends OwnerTimestampEntity implements IUserAddr
   @PrimaryGeneratedColumn('uuid')
   id: uuid;
 
+  @Column({
+    type: 'text',
+  })
+  fullName: string;
+
+  @Column({
+    type: 'text',
+  })
+  phone: string;
+
   @Column()
   flat: string;
 

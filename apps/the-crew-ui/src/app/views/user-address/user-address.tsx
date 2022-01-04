@@ -1,4 +1,4 @@
-import { Apartment, LocationCity, PinDrop, Traffic } from '@mui/icons-material';
+import { Abc, Apartment, LocationCity, Phone, PinDrop, Traffic } from '@mui/icons-material';
 import {
   Button,
   FormControl,
@@ -15,6 +15,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
+import { AnyObject } from '@the-crew/common';
 import { ServiceLocation } from '@the-crew/common/enums';
 import { isBoolean, isNumber } from 'class-validator';
 import { useFormik } from 'formik';
@@ -76,7 +77,9 @@ export const AddAddressForm = forwardRef<unknown, IUserAddressForm>((props, ref)
         return isValid;
       },
       getValue: () => {
-        return stateRef.current;
+        const value: RegisterAsProfessionalDTO['address'] = stateRef.current;
+        value.phone = `+91-${value.phone}`;
+        return value;
       },
       formik: {
         resetForm,
@@ -132,10 +135,59 @@ export const AddAddressForm = forwardRef<unknown, IUserAddressForm>((props, ref)
             </Grid>
           ) : null}
           <Grid item xs={6}>
+            <FormControl fullWidth focused={false} error={errors.fullName && touched.fullName}>
+              <OutlinedInput
+                name="fullName"
+                placeholder="Full Name"
+                type="text"
+                value={values.fullName}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                endAdornment={
+                  <InputAdornment position="end">
+                    <IconButton edge="end" tabIndex={-1}>
+                      <Abc />
+                    </IconButton>
+                  </InputAdornment>
+                }
+              />
+              <FormHelperText style={{ paddingLeft: '8px' }}>
+                {errors.fullName && touched.fullName ? errors.fullName : ' '}
+              </FormHelperText>
+            </FormControl>
+          </Grid>
+          <Grid item xs={6}>
+            <FormControl fullWidth focused={false} error={errors.phone && touched.phone}>
+              <TextField
+                label="Mobile"
+                name="phone"
+                value={values.phone}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton edge="end" tabIndex={-1}>
+                        <Phone />
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                  inputComponent: PhoneTextField,
+                  inputProps: {
+                    prefix: '+91',
+                  },
+                }}
+              />
+              <FormHelperText style={{ paddingLeft: '8px' }}>
+                {errors.phone && touched.phone ? errors.phone : ' '}
+              </FormHelperText>
+            </FormControl>
+          </Grid>
+          <Grid item xs={6}>
             <FormControl fullWidth focused={false} error={errors.flat && touched.flat}>
               <OutlinedInput
                 name="flat"
-                placeholder="Apartment/DNo:"
+                placeholder="Apartment No:"
                 type="text"
                 value={values.flat}
                 onChange={handleChange}
@@ -265,9 +317,28 @@ const PriceTextField = forwardRef((props, ref) => {
   return <NumberInput {...props} getInputRef={ref} format="######" />;
 });
 
+const PhoneTextField = forwardRef<unknown, AnyObject>((props, ref) => {
+  return (
+    <NumberInput
+      {...props}
+      getInputRef={ref}
+      format={`(${props.prefix}) #####-#####`}
+      mask="_"
+    ></NumberInput>
+  );
+});
+
 export default UserAddressWrapper;
 
 const validationSchema = object().shape({
+  fullName: string().required().label('Full Name'),
+  phone: string()
+    .label('Mobile')
+    .required()
+    .matches(
+      /^((\+[1-9]{1,4}[ -]?)|(\([0-9]{2,3}\)[ -]?)|([0-9]{2,4})[ -]?)*?[0-9]{3,4}[ -]?[0-9]{3,4}$/,
+      { message: 'Enter a valid mobile number' },
+    ),
   flat: string().required().label('Flat'),
   street: string().required().label('Street'),
   city: string().required().label('City'),

@@ -7,13 +7,14 @@ import { ConfigService, ConfigType } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import cookieParser from 'cookie-parser';
+import helmet from 'helmet';
 
 import { AppModule } from './app/app.module';
 import AuthConfig from './configs/auth.config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-
+  app.use(helmet());
   const configService = app.get(ConfigService);
   const authConfig = configService.get<ConfigType<typeof AuthConfig>>('auth');
 

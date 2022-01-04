@@ -14,7 +14,7 @@ import {
   CrudRequestInterceptor,
   ParsedRequest,
 } from '@nestjsx/crud';
-import { UserAddress, uuid } from '@the-crew/common';
+import { CreateUserAddressDTO, UpdateUserAddressDTO, UserAddress, uuid } from '@the-crew/common';
 
 import { AnonymousGuard, JwtAuthGuard } from '../../auth/guards';
 import { UserAddressEntity } from '../models/entities';
@@ -55,6 +55,10 @@ import { UserAddressService } from '../services';
     deleteOneBase: {
       decorators: [UseGuards(JwtAuthGuard)],
     },
+  },
+  dto: {
+    create: CreateUserAddressDTO,
+    update: UpdateUserAddressDTO,
   },
 })
 @ApiTags('User Addresses')
