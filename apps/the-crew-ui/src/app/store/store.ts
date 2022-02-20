@@ -4,6 +4,7 @@ import {
   authReducer,
   cartReducer,
   genericReducer,
+  notificationReducer,
   orderReducer,
   serviceReducer,
   subOrderReducer,
@@ -20,6 +21,7 @@ const combineReducer = combineReducers({
   order: orderReducer,
   userAddresses: userAddressReducer,
   user: userReducer,
+  notifications: notificationReducer,
 });
 
 const rootReducer = (state: RootState, action: AnyAction) => {

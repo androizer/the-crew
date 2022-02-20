@@ -6,3 +6,4 @@ export * from './order.model';
 export * from './sub-order.model';
 export * from './session.model';
 export * from './cart.model';
+export * from './notification.model';

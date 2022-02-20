@@ -3,4 +3,5 @@
 .root {
   @include mixin.fxFill();
   @include mixin.fxLayout(column);
+  overflow: hidden;
 }

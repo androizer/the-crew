@@ -1,5 +1,9 @@
 @use '../../theme/mixins' as mixin;
 
+.homeRoot {
+  flex: 1;
+}
+
 .homePageImgContainer {
   display: flex;
   width: 100%;

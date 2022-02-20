@@ -1,5 +1,6 @@
-import notFoundBanner from './not-found.svg';
-import searchRecords from './search.svg';
 import serviceAvatar from './avatar.jpeg';
+import notFoundBanner from './not-found.svg';
+import notificationPlaceholder from './notification.svg';
+import searchRecords from './search.svg';
 
-export { notFoundBanner, searchRecords, serviceAvatar };
+export { notFoundBanner, notificationPlaceholder, searchRecords, serviceAvatar };
