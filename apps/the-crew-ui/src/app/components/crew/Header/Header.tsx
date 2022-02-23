@@ -21,7 +21,7 @@ import { Box } from '@mui/system';
 import { Role } from '@the-crew/common/enums';
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import { theCrewLogo } from '../../../../assets/icons';
 import { authSelector } from '../../../store/slices';
@@ -31,7 +31,7 @@ import Notification from '../Notification/Notification';
 export default function Header() {
   const [openSideMenu, setSideMenuStatus] = useState(false);
   const { user: currentUser } = useSelector(authSelector);
-  const history = useHistory();
+  const navigate = useNavigate();
   const theme = useTheme();
   const xsView = useMediaQuery(theme.breakpoints.down('sm'));
 
@@ -40,7 +40,7 @@ export default function Header() {
   };
 
   const handleLogoClick = () => {
-    history.push('/');
+    navigate('/');
   };
 
   return (
@@ -72,7 +72,7 @@ export default function Header() {
             {/* <Button
               color="inherit"
               onClick={() => {
-                history.push('/about-us');
+                navigate('/about-us');
               }}
             >
               About Us
@@ -84,7 +84,7 @@ export default function Header() {
                   className="registerAsProfessionalBtn"
                   color="inherit"
                   onClick={() => {
-                    history.push('/register-as-professional');
+                    navigate('/register-as-professional');
                   }}
                 >
                   Register As A Professional
@@ -98,7 +98,7 @@ export default function Header() {
                   <Button
                     color="inherit"
                     onClick={() => {
-                      history.push('/login');
+                      navigate('/login');
                     }}
                   >
                     Login
@@ -107,7 +107,7 @@ export default function Header() {
                 <Button
                   color="inherit"
                   onClick={() => {
-                    history.push('/register');
+                    navigate('/register');
                   }}
                 >
                   Sign Up
@@ -142,7 +142,7 @@ export default function Header() {
               button
               key="login"
               onClick={() => {
-                history.push('/login');
+                navigate('/login');
                 handleMenuClick();
               }}
             >
@@ -156,7 +156,7 @@ export default function Header() {
               key="register"
               onClick={() => {
                 handleMenuClick();
-                history.push('/register');
+                navigate('/register');
               }}
             >
               <ListItemIcon>
@@ -170,7 +170,7 @@ export default function Header() {
                 key="register_as_professional"
                 onClick={() => {
                   handleMenuClick();
-                  history.push('/register-as-professional');
+                  navigate('/register-as-professional');
                 }}
               >
                 <ListItemIcon>

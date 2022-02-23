@@ -15,7 +15,7 @@ import { useFormik } from 'formik';
 import { AnyObject } from 'immer/dist/internal';
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { useHistory } from 'react-router';
+import { useNavigate } from 'react-router';
 import { object, ref, string } from 'yup';
 import { NumberInput } from '../../components';
 
@@ -34,11 +34,11 @@ interface IRegisterForm {
 
 export default function Register() {
   const authState = useSelector(authSelector);
-  const history = useHistory();
+  const navigate = useNavigate();
   const [userDto] = useState(new RegisterProDTO());
 
   if (authState.user) {
-    history.push('/services');
+    navigate('/services');
   }
 
   return (

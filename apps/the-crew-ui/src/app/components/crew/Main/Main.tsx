@@ -1,21 +1,22 @@
 import { Role } from '@the-crew/common/enums';
-import { Route, Switch } from 'react-router-dom';
+import React, { Suspense } from 'react';
+import { Navigate, Route, Routes } from 'react-router-dom';
 
 import { Footer } from '..';
-import { Guard } from '../..';
+import { OverlayLoading } from '../..';
 import { useAppSelector } from '../../../store';
 import { authSelector } from '../../../store/slices';
-import {
-  AboutUs,
-  Bookings,
-  Dashboard,
-  Home,
-  Login,
-  NotFound404,
-  RegisterAsProfessional,
-  SearchService,
-  ServiceList,
-} from '../../../views';
+import { Home, NotFound404 } from '../../../views';
+
+const AboutUs = React.lazy(() => import('../../../views/about-us/about-us'));
+const Bookings = React.lazy(() => import('../../../views/bookings/bookings'));
+const Dashboard = React.lazy(() => import('../../../views/dashboard/dashboard'));
+const RegisterAsProfessional = React.lazy(
+  () => import('../../../views/register-as-professional/register-as-professional'),
+);
+const SearchService = React.lazy(() => import('../../../views/service-search/search-service'));
+const ServiceList = React.lazy(() => import('../../../views/service-list/service-list'));
+const Login = React.lazy(() => import('../../../views/login/login'));
 
 const Main: React.FC = () => {
   const { user: currentUser } = useAppSelector(authSelector);
@@ -30,58 +31,87 @@ const Main: React.FC = () => {
         overflowX: 'hidden',
       }}
     >
-      <Switch>
-        <Guard
-          canActivate={() => {
-            return currentUser ? !currentUser.role.includes(Role.PROFESSIONAL) : true;
-          }}
-          fallbackRoute={() => {
-            return '/dashboard';
-          }}
-          exact
+      <Routes>
+        <Route
           path="/"
-          component={Home}
+          element={
+            !currentUser || !currentUser.role.includes(Role.PROFESSIONAL) ? (
+              <Home />
+            ) : (
+              <Navigate to={{ pathname: '/dashboard' }} />
+            )
+          }
         />
-        <Route path="/" exact render={() => <Home />} />
-        <Route path="/login" exact render={() => <Login />} />
-        {/* <Route path="/register" exact render={() => <Register />} /> */}
-        <Route path="/register-as-professional" exact render={() => <RegisterAsProfessional />} />
-        <Route path="/search" exact render={() => <SearchService />} />
-        <Guard
-          canActivate={() => {
-            return currentUser?.role.includes(Role.PROFESSIONAL);
-          }}
-          fallbackRoute={() => {
-            return '/';
-          }}
-          exact
+        <Route
+          path="/login"
+          element={
+            <Suspense fallback={<OverlayLoading open={true} />}>
+              <Login />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/register-as-professional"
+          element={
+            <Suspense fallback={<OverlayLoading open={true} />}>
+              <RegisterAsProfessional />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/search"
+          element={
+            <Suspense fallback={<OverlayLoading open={true} />}>
+              <SearchService />
+            </Suspense>
+          }
+        />
+        <Route
           path="/services"
-          component={ServiceList}
+          element={
+            currentUser?.role.includes(Role.PROFESSIONAL) ? (
+              <Suspense fallback={<OverlayLoading open={true} />}>
+                <ServiceList />
+              </Suspense>
+            ) : (
+              <Navigate to={{ pathname: '/' }} />
+            )
+          }
         />
-        <Guard
-          canActivate={() => {
-            return !!currentUser;
-          }}
-          fallbackRoute={() => '/'}
-          exact
+        <Route
           path="/bookings"
-          component={Bookings}
+          element={
+            currentUser ? (
+              <Suspense fallback={<OverlayLoading open={true} />}>
+                <Bookings />
+              </Suspense>
+            ) : (
+              <Navigate to={{ pathname: '/' }} />
+            )
+          }
         />
-        {/* <Route path="" exact render={() => <Bookings />} /> */}
-        <Route path="/about-us" exact render={() => <AboutUs />} />
-        <Guard
-          canActivate={() => {
-            return currentUser?.role.includes(Role.PROFESSIONAL);
-          }}
-          fallbackRoute={() => {
-            return '/';
-          }}
-          exact
-          component={Dashboard}
+        <Route
+          path="/about-us"
+          element={
+            <Suspense fallback={<OverlayLoading open={true} />}>
+              <AboutUs />
+            </Suspense>
+          }
+        />
+        <Route
           path="/dashboard"
+          element={
+            currentUser?.role.includes(Role.PROFESSIONAL) ? (
+              <Suspense fallback={<OverlayLoading open={true} />}>
+                <Dashboard />
+              </Suspense>
+            ) : (
+              <Navigate to={{ pathname: '/' }} />
+            )
+          }
         />
-        <Route render={() => <NotFound404 />} />
-      </Switch>
+        <Route element={<NotFound404 />} />
+      </Routes>
       <Footer />
     </div>
   );

@@ -19,7 +19,7 @@ import { useSnackbar } from 'notistack';
 import { useEffect, useState } from 'react';
 import { GoogleLogin, GoogleLoginResponse } from 'react-google-login';
 import { useSelector } from 'react-redux';
-import { useHistory } from 'react-router';
+import { useNavigate } from 'react-router';
 import { object, string } from 'yup';
 
 import { loginBanner } from '../../../assets/images/login';
@@ -37,11 +37,11 @@ export default function Login() {
   const authState = useSelector(authSelector);
   const { enqueueSnackbar } = useSnackbar();
   const dispatch = useAppDispatch();
-  const history = useHistory();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (authState.user) {
-      history.push('/');
+      navigate('/');
     }
   }, [authState.user]);
 

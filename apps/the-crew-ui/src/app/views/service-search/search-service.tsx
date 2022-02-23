@@ -14,7 +14,7 @@ import { Role, ServiceLocation, ServiceRequestType } from '@the-crew/common/enum
 import { camelCase, startCase } from 'lodash-es';
 import { MouseEvent, useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import { ServiceList } from '..';
 import {
@@ -42,11 +42,11 @@ export default function ServiceSearch() {
   const [anchorEl, setAnchorEl] = useState<HTMLDivElement | null>(null);
   const open = Boolean(anchorEl);
 
-  const history = useHistory();
+  const navigate = useNavigate();
   const user = useAppSelector(authSelector).user;
 
   useEffect(() => {
-    user?.role.includes(Role.PROFESSIONAL) && history.push('/bookings');
+    user?.role.includes(Role.PROFESSIONAL) && navigate('/bookings');
   }, [history, user]);
 
   const handleOpen = (event: MouseEvent<HTMLDivElement>) => {

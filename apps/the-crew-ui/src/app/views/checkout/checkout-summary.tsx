@@ -1,5 +1,5 @@
 import { Button, DialogActions, DialogContent, Divider, Typography } from '@mui/material';
-import { useHistory } from 'react-router';
+import { useNavigate } from 'react-router';
 
 import { environment } from '../../../environments/environment';
 import { useAppSelector } from '../../store';
@@ -14,7 +14,7 @@ interface ICheckoutSummary {
 const CheckoutSummary: React.FC<ICheckoutSummary> = props => {
   const cartItems = useAppSelector(state => cartSelectors.selectAll(state.cart));
   const authState = useAppSelector(authSelector);
-  const history = useHistory();
+  const navigate = useNavigate();
 
   return (
     <>
@@ -66,7 +66,7 @@ const CheckoutSummary: React.FC<ICheckoutSummary> = props => {
           color="primary"
           onClick={() => {
             if (!authState.user) {
-              history.push('/login');
+              navigate('/login');
             } else {
               props.proceedToAddressCallback();
             }

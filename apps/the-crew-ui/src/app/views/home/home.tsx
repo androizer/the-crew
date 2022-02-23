@@ -5,7 +5,7 @@ import { useTheme } from '@mui/system';
 import { Role, ServiceLocation } from '@the-crew/common/enums';
 import { useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import { useHistory } from 'react-router';
+import { useNavigate } from 'react-router';
 
 import { assured, equipment, homeBanner, person, price } from '../../../assets/images/home';
 import { authSelector } from '../../store/slices';
@@ -32,12 +32,12 @@ export default function Home() {
   const theme = useTheme();
   const smView = useMediaQuery(theme.breakpoints.down('md'));
   const md2smView = useMediaQuery(theme.breakpoints.between('xs', 'md'));
-  const history = useHistory();
+  const navigate = useNavigate();
   const user = useSelector(authSelector).user;
 
   useEffect(() => {
     if (user?.role.includes(Role.PROFESSIONAL)) {
-      history.push('/bookings');
+      navigate('/bookings');
     }
   }, [history, user]);
 
@@ -77,7 +77,7 @@ export default function Home() {
                     />
                   )}
                   onChange={(_, value: { city: ServiceLocation }) => {
-                    history.push({
+                    navigate({
                       pathname: 'search',
                       search: `city=${value.city}`,
                     });

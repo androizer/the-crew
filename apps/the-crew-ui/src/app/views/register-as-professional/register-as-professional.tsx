@@ -13,7 +13,7 @@ import {
 } from '@mui/material';
 import { useSnackbar } from 'notistack';
 import { useRef, useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import { registerBanner } from '../../../assets/images/register';
 import { authApi, serviceApi, userAddressApi } from '../../services';
@@ -31,7 +31,7 @@ export default function RegisterAsProfessional() {
   const theme = useTheme();
   const smView = useMediaQuery(theme.breakpoints.down('md'));
   const { enqueueSnackbar } = useSnackbar();
-  const history = useHistory();
+  const navigate = useNavigate();
   const [isLoading, setLoading] = useState(false);
   const [registerDetails, setRegisterDetails] = useState<RegisterAsProfessionalDTO>(
     getInitialState(),
@@ -88,7 +88,7 @@ export default function RegisterAsProfessional() {
         };
         await Promise.all([userAddressApi.createOne(addressDTO), serviceApi.createOne(serviceDTO)]);
         setLoading(false);
-        history.push('/login');
+        navigate('/login');
       } catch (error) {
         if (error.message) {
           enqueueSnackbar(error.message, { variant: 'error' });

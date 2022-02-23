@@ -7,7 +7,7 @@ import { User } from '@the-crew/common';
 import { Role } from '@the-crew/common/enums';
 import { useState } from 'react';
 import { useGoogleLogout } from 'react-google-login';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import { environment } from '../../../../environments/environment';
 import { useAppDispatch } from '../../../store';
@@ -21,7 +21,7 @@ const MyAvatar: React.FC<IMyAvatar> = ({ currentUser }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const dispatch = useAppDispatch();
   const open = Boolean(anchorEl);
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const { signOut } = useGoogleLogout({
     clientId: environment.googleClientId,
@@ -45,7 +45,7 @@ const MyAvatar: React.FC<IMyAvatar> = ({ currentUser }) => {
     dispatch(AuthThunks.logout())
       .unwrap()
       .finally(() => {
-        history.push('/login');
+        navigate('/login');
       });
   };
 
@@ -95,7 +95,7 @@ const MyAvatar: React.FC<IMyAvatar> = ({ currentUser }) => {
         transformOrigin={{ horizontal: 'right', vertical: 'top' }}
         anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
       >
-        <MenuItem onClick={() => history.push('/bookings')}>
+        <MenuItem onClick={() => navigate('/bookings')}>
           <ListItemIcon>
             <UpcomingIcon color="action" />
           </ListItemIcon>
@@ -109,7 +109,7 @@ const MyAvatar: React.FC<IMyAvatar> = ({ currentUser }) => {
           My Profile
         </MenuItem>
         {currentUser.role.includes(Role.PROFESSIONAL) && (
-          <MenuItem onClick={() => history.push('/services')}>
+          <MenuItem onClick={() => navigate('/services')}>
             <ListItemIcon>
               <HandymanIcon fontSize="small" />
             </ListItemIcon>

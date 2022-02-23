@@ -3,7 +3,7 @@ import { Box, Button, Grid, Typography } from '@mui/material';
 import { OrderStatus } from '@the-crew/common/enums';
 import { useEffect } from 'react';
 import Carousel, { Responsive } from 'react-alice-carousel';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import { BookingCard, ServiceCard } from '../../components';
 import { useAppDispatch, useAppSelector } from '../../store';
@@ -46,7 +46,7 @@ const aliceResponsive: Record<string, Responsive> = {
 };
 
 const Dashboard = props => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const services = useAppSelector(state => serviceSelectors.selectAll(state.services));
   const bookings = useAppSelector(state => subOrderSelector.selectAll(state.subOrders));
@@ -104,7 +104,7 @@ const Dashboard = props => {
               variant="outlined"
               startIcon={<ListIcon />}
               onClick={() => {
-                history.push('/services');
+                navigate('/services');
               }}
             >
               Show All
@@ -159,7 +159,7 @@ const Dashboard = props => {
               variant="outlined"
               startIcon={<ListIcon />}
               onClick={() => {
-                history.push('/bookings');
+                navigate('/bookings');
               }}
             >
               Show All

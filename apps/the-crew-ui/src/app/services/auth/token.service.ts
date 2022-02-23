@@ -62,6 +62,12 @@ function getTokenPayload(): TokenPayload {
   };
 }
 
+function clearTokenPayload(): void {
+  localStorage.removeItem(AuthKeys.ACCESS_TOKEN);
+  localStorage.removeItem(AuthKeys.EXPIRES_AT);
+  localStorage.removeItem(AuthKeys.REFRESH_TOKEN);
+}
+
 export {
   getAccessToken,
   setAccessToken,
@@ -71,6 +77,7 @@ export {
   getExpireTimestamp,
   setTokenPayload,
   getTokenPayload,
+  clearTokenPayload,
 };
 
 export const TokenService = {
@@ -82,4 +89,5 @@ export const TokenService = {
   getExpireTimestamp,
   setTokenPayload,
   getTokenPayload,
+  clearTokenPayload,
 };

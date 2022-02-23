@@ -2,7 +2,7 @@ import { Box, Container, Drawer, Grid, styled, Typography } from '@mui/material'
 import { ServiceRequest } from '@the-crew/common';
 import { Role, ServiceLocation, ServiceRequestType } from '@the-crew/common/enums';
 import { useEffect, useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import { searchRecords } from '../../../assets/images/generic';
 import { ServiceCard, ServiceDetail } from '../../components';
@@ -20,7 +20,7 @@ interface IServiceList {
 }
 
 const ServiceList: React.FC<IServiceList> = props => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const [selectedService, setSelectedService] = useState(null);
   const [showDetail, setShowDetail] = useState(false);

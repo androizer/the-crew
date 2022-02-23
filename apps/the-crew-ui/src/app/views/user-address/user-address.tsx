@@ -21,7 +21,7 @@ import { isBoolean, isNumber } from 'class-validator';
 import { useFormik } from 'formik';
 import React, { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
 import { useSelector } from 'react-redux';
-import { useHistory } from 'react-router';
+import { useNavigate } from 'react-router';
 import { number, object, string } from 'yup';
 
 import { NumberInput } from '../../components';
@@ -41,10 +41,10 @@ interface IUserAddressForm {
 
 const UserAddressWrapper: React.FC<IUserAddressForm> = props => {
   const authState = useSelector(authSelector);
-  const history = useHistory();
+  const navigate = useNavigate();
 
   if (authState.user) {
-    history.push('/services');
+    navigate('/services');
   }
 
   return (

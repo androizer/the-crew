@@ -1,15 +1,14 @@
 import { useEffect, useState } from 'react';
-import { withRouter } from 'react-router';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import { TokenService } from '../../../services';
 import { useAppDispatch, useAppSelector } from '../../../store';
 import { AuthThunks } from '../../../store/thunks';
 import { OverlayLoading } from '../../generic';
 
-const Startup = withRouter(props => {
+const Startup = props => {
   const dispatch = useAppDispatch();
-  const history = useHistory();
+  const navigate = useNavigate();
   const { isLoading } = useAppSelector(state => state.generic.loader);
   const [loading, setLoading] = useState(true);
 
@@ -21,7 +20,8 @@ const Startup = withRouter(props => {
         dispatch(AuthThunks.whoAmI())
           .unwrap()
           .catch(() => {
-            history.push('/login');
+            navigate('/login');
+            TokenService.clearTokenPayload();
           })
           .finally(() => {
             setLoading(false);
@@ -45,6 +45,6 @@ const Startup = withRouter(props => {
       )}
     </>
   );
-});
+};
 
 export default Startup;

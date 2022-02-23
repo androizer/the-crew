@@ -1,12 +1,18 @@
-import { Redirect, Route, RouteProps } from 'react-router-dom';
+import { Navigate, Route, RouteProps } from 'react-router-dom';
 
 interface IGuard extends RouteProps {
   canActivate: () => boolean;
   fallbackRoute: () => string;
 }
 
+/**
+ *
+ * @param param
+ * @returns React.FC
+ * @deprecated This wrapper doesn't work with `react-router` v6+
+ */
 const Guard: React.FC<IGuard> = ({
-  component: Component,
+  element: Component,
   canActivate,
   fallbackRoute,
   path,
@@ -16,9 +22,7 @@ const Guard: React.FC<IGuard> = ({
   return (
     <Route
       {...routeProps}
-      render={props =>
-        canActivate() ? <Component {...props} /> : <Redirect to={{ pathname: fallbackRoute() }} />
-      }
+      element={canActivate() ? Component : <Navigate to={{ pathname: fallbackRoute() }} />}
     />
   );
 };

@@ -1,7 +1,7 @@
 import { Button, ButtonGroup, Grid, Typography } from '@mui/material';
 import { OrderStatus, Role } from '@the-crew/common/enums';
 import { useEffect, useMemo, useState } from 'react';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import { searchRecords } from '../../../assets/images/generic';
 import { BookingCard } from '../../components';
@@ -20,7 +20,7 @@ import style from './bookings.module.scss';
 import type { PaymentSession } from '@the-crew/common';
 
 export default function MyBookings() {
-  const history = useHistory();
+  const navigate = useNavigate();
   const { search } = useLocation();
   const dispatch = useAppDispatch();
   const query = useMemo(() => new URLSearchParams(search), [search]);
@@ -54,7 +54,7 @@ export default function MyBookings() {
                     CartSessionService.removeCartItems();
                     PaymentSessionService.removePaymentSession(sessionRef);
                     getBookings();
-                    history.push('/bookings');
+                    navigate('/bookings');
                   });
               });
           }
@@ -87,7 +87,7 @@ export default function MyBookings() {
               : { field: 'service.provider' }),
           },
         ],
-        sort: {field: 'modifiedOn', order: 'DESC'},
+        sort: { field: 'modifiedOn', order: 'DESC' },
         search: {
           ...(currentUser.role.includes(Role.PROFESSIONAL)
             ? { 'service.providerId': currentUser.id }

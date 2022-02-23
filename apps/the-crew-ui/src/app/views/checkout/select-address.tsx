@@ -14,7 +14,7 @@ import {
   Typography,
 } from '@mui/material';
 import { useEffect, useRef, useState } from 'react';
-import { useHistory } from 'react-router';
+import { useNavigate } from 'react-router';
 
 import { CartSessionService, PaymentApi } from '../../services';
 import { useAppDispatch, useAppSelector } from '../../store';
@@ -32,7 +32,7 @@ interface ISelectAddresses {
 }
 
 const SelectAddress: React.FC<ISelectAddresses> = props => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const ref = useRef(null);
   const addressState = useAppSelector(state => state.userAddresses);
@@ -135,7 +135,7 @@ const SelectAddress: React.FC<ISelectAddresses> = props => {
           disabled={selectedAddress === null}
           onClick={() => {
             if (!authState.user) {
-              history.push('/login');
+              navigate('/login');
             } else {
               handlePayment();
             }
