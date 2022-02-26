@@ -47,7 +47,7 @@ export default function ServiceSearch() {
 
   useEffect(() => {
     user?.role.includes(Role.PROFESSIONAL) && navigate('/bookings');
-  }, [history, user]);
+  }, [navigate, user]);
 
   const handleOpen = (event: MouseEvent<HTMLDivElement>) => {
     setAnchorEl(event.currentTarget);
